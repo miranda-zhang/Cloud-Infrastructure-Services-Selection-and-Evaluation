@@ -1,0 +1,236 @@
+\chapter{Introduction}
+\label{cha:intro}
+Since the exploding growth of Cloud in 2006, 
+Cloud infrastructure services market has been continuously evolving and expanding,
+thus leaving users in the agony of choice. To be
+able to select the best mix of service offerings from an
+abundance of possibilities, users must consider complex 
+dependencies and heterogeneous sets of criteria. 
+The decision-making problem is
+further complicated due to heterogeneous service configurations
+and application provisioning QoS constraints. 
+This thesis provide an in-depth explanation of the work we have undertaken to address the aforementioned problem.
+
+We present an intelligent decision support framework build on top of ontological models, selection and estimation algorithms.
+The proposed solution map users’ specified application
+requirements to Cloud service configurations, aiding the selection 
+of Cloud-based infrastructure services (e.g. virtual machine, storage, network).
+
+This chapter will briefly describe the research problems and give an overview of the solutions and thesis structure.
+
+\section{Research Problems}
+\label{sec:research_problem}
+
+Cloud computing
+\cite{5071863,Armbrust:2010:VCC:1721654.1721672,CloudComputingMethodologySystemsApplications}
+assembles large networks of virtualized services:
+infrastructure services (e.g., compute, storage, network, etc.) and software services
+(e.g., databases, message queuing systems, monitoring systems, load-balancers, etc.).
+It embraces an elastic paradigm in which applications establish on-demand
+interactions with services to satisfy required Quality of Service (QoS) including cost,
+response time and throughput. However, selecting and composing the right services
+meeting application requirements is a challenging problem.
+
+Consider an example of a medium scale enterprise that would like to move its
+enterprise applications to cloud. There are multiple providers in the current cloud
+landscape that offer infrastructure services in multiple heterogeneous configurations.
+Examples include, Amazon , Microsoft Azure, Google, Alibaba among many others.
+With multiple and heterogeneous options for infrastructure services, enterprises are facing a complex task when trying to select a single service type or compose a combination of service types.
+\textit{Here we are concerned with simplifying the selection and comparison of a set of
+infrastructure service offerings for hosting the enterprise applications and
+corresponding dataset, while meeting multiple criteria, such as specific configuration
+and cost, emanating from the enterprise’s QoS needs.}
+This is a challenging problem for the enterprise and needs to be addressed.
+
+Existing approaches in helping a user to compare and select infrastructure services
+in cloud computing involve manually reading the providers' documentation for finding
+out which services are most suitable for hosting an application. This problem is
+further aggravated by the use of non-standardized naming terminologies used by
+cloud providers. 
+For example, Amazon refers to Compute services as EC2 Compute
+Unit, while GoGrid refers to the same as Cloud Servers. Furthermore, cloud providers
+typically publish their service description, pricing policies and Service-Level-
+Agreement (SLA) rules on their websites in various formats. The relevant information
+may be updated without prior notice to the users. Hence, it is not an easy task to
+manually obtain service configurations from cloud providers’ websites and
+documentations (which are the only sources of information).
+
+\subsection{Ambiguous Terminology and Heterogeneous Service Offers}
+\label{subsec:service_discovery}
+It is a cumbersome task for decision makers to manually
+read Cloud providers’ documentations for finding out which
+services are suitable for building their Cloud-based
+application architecture (e.g., a biologist intending to host his
+genomics experiment in the Cloud). This problem is further
+aggravated due to the rapid emergence of services in the
+Cloud landscape. The multi-layered organization (e.g., SaaS,
+PaaS, and IaaS) of Cloud Services, along with their
+heterogeneous types (CPU, Storage, Network, web server,
+databases, etc.) and features (Virtualization technology, SLA
+model, billing model, Cloud location, cost, etc.) makes the
+task of service identification a hard problem. 
+
+In addition, the use of non-standardized naming terminology used by Cloud
+providers makes this problem challenging. For example, the CPU services 
+can be called Elastic Compute Cloud (EC2) Unit by AWS, Compute Engine (by Google), 
+Elastic Compute Service (ECS) by Alibaba, or just Instances, Servers, Units.
+In 2013 one of Burstorm's \cite{Burstorm} survey showed that
+there were over 426 various compute and
+storage service providers with deployments in over 11 072
+locations. Even within a particular provider there are different
+variations of services. 
+For example, Amazon Web Service
+(AWS) has 674 different offerings differentiated by price, QoS
+features, and locations. In addition to these, every quarter, they add
+about four new services, change business models (prices and
+terms), and sometimes even add new locations. To be able to
+select the best mix of service offerings from an abundance of
+possibilities, application owners must simultaneously consider
+and optimize complex dependence and heterogeneous sets of
+criteria (price, features, location, QoS, etc.). 
+Often it is not enough to just consider one single type of service.
+For example, a content distribution solution not only involves
+selecting of an optimal cloud storage offer,
+company may also need to to guarantee the corresponding computing capabilities.
+So the result architecture is able to not only store,
+but also processing the data as fast as possible while minimizing the cost.
+
+Cloud providers typically publish their service
+descriptions on their websites in various layouts they prefer.
+The relevant information may be updated without prior
+notice to the users. Further, the structure of web pages can
+change significantly leading to confusion. Hence, it is not an
+easy task to obtain reliable service descriptions from Cloud
+providers’ website and documentation (which are the only
+sources of information). This leads to the following
+challenges: 
+\textit{How to automatically fetch service descriptions
+published by Cloud providers and present them to decision
+makers in a human readable way? Can we develop a unified
+and generic Cloud ontology to describe the services of any
+Cloud provider which exists now or may become available in
+the future?} 
+ 
+\subsection{Overwhelming Number of Choices and Conflicting Criteria}
+\label{subsec:service_comparison}
+Matching results to decision makers’ requirements
+involves bundling of multiple related Cloud services,
+computing combined cost (under different billing models and
+discount offers), considering all possible (or only valuable)
+alternatives and multiple selection criteria. 
+The diversity of offerings in the Cloud landscape
+leads to practical research questions: how well does a service
+of a Cloud provider perform compared to the other providers? 
+How to optimize the process of composite Cloud service selection and
+bundling? For example, how does a decision maker compare
+the cost/performance features of CPU, storage, and network
+service offered by AWS EC2, Microsoft Azure, FelxiScale and RackSpace. 
+Though branded calculators are available from individual Cloud providers for
+calculating service leasing costs, it is not easy for decision
+makers to generalize their requirements to fit different
+service offers (with various quota and limitations) let alone
+computing and comparing costs. A decision
+maker may choose one provider for storage intensive
+applications and another for computation intensive
+applications. 
+
+Moreover, as cloud data centers are distributed across the Internet,
+the network QoS (the data transfer latency) varies. This
+variation is dependent on the location of the data center and the
+location of the input data stream. This raises
+the research question as to how to optimize the process of
+choosing the best Compute and Storage services, which are not
+only optimized in terms of price, availability, and processing
+speed but also offer a good QoS (e.g., the network throughput
+and the response delivery latency).
+
+\section{Outline of the Thesis}
+\subsection{Background}
+Chapter \ref{cha:background} will give some background information about this research. For example, Cloud delivery and deployment models, the scope of this research and the related works.
+
+\subsection{Cloud Computing Ontology}
+\label{sec:CloudComputingOntology}
+Chapter \ref{cha:cocoon} mainly addressed the problem \ref{subsec:service_discovery}: Ambiguous Terminology and Heterogeneous Service Offers. This problem needs to look at how to automatically identify services and represent them in a standard way.
+We introduced an unified schema for modeling Cloud, thus
+the Cloud Computing Ontology (CoCoOn).
+
+CoCoOn defines the most important concepts and
+relations of functional and non-functional
+configuration parameters of infrastructure services.
+We choose to follow semantic web standards because extensive research
+and standardization efforts have been put into developing web
+information representation models, namely, the Resource
+Description Framework (RDF) and ontologies. 
+Additionally there was a popular demand for the schema of
+software services in the Schema.org forum around 2012, when
+CoCoOn (v0.1.0) was proposed. 
+This extension specifically defines Cloud services (which
+includes SaaS) would greatly facilitate service publication
+and identification using semantic web technologies.
+
+CoCoOn defines the domain model of the IaaS layer. 
+This ontology facilitates the description of Cloud infrastructure services; 
+and through mappings from provider descriptions, facilitates the
+discovery of infrastructure services based on their
+functionality and Quality of Service (QoS) parameters. 
+
+
+\subsection{Multicriteria Decision Support}
+Next we look at the problem \ref{subsec:service_comparison}:
+Overwhelming Number of Choices and Conflicting Criteria.
+Chapter \ref{cha:AHP} presented the decision aid algorithm for ranking Cloud services.
+
+The service selection method adopts an analytic hierarchy process (AHP)-based decision making technique. As it enables the handling of multiple quantitative (i.e., numeric) and qualitative (a descriptive and
+non-numeric, such as location, CPU architecture, i.e., a 32- or
+64-bit operating system) criteria. For each pair of
+criteria, the user is required to provide a subjective
+opinion of their relative importance to them.
+Then the overall composite weight for each criterion can be calculated by applying AHP.
+Note that pairwise comparisons \cite{PairwiseComparison} is used to help user determine relative preference among a pool of nonnumerical attributes.
+Criteria that are taken into consideration during comparison can be grouped into two
+categories: the benefit and the cost. “Benefit” groups the “good” criteria
+that are meant to be maximized. Similarly, “Cost” groups the “bad” criteria to
+be minimized. Therefor, we defined a cost–benefit-ratio-based evaluation function to 
+calculate the ranking for cloud service options.
+
+\subsection{Usage and Cost Estimation}
+Chapter \ref{cha:ResourceUsageEstimation} looked at the problem of complex pricing models and non-factual usage estimation.
+
+To calculate the Cloud resource renting costs, the user needs to suggest their planned usage. Our approach had taken into account for
+different workload patterns during renting cost calculation. For example we defined a number of patterns for users to quickly choose from (i.e. flat/capped usage, regular periodic bursts, liner incremental). 
+
+Alternatively, users may already have some historical
+usage statistics, in situations like they want to move in-house systems to the Cloud or from one cloud/server renting service to another. 
+Queuing theory modeling was investigated for usage estimation based on historical customer workload and benchmarking.
+We suggested a Queuing theory based approach for estimating IaaS usage.
+Queuing theory is one of the much studied methods in QoS modelling and control.
+From the infrastructure system administrator perspective, we explored ways to apply Queuing Theory model to estimate best fit resource allocation for achieving target Service Level Agreements (SLA). 
+There is a number of studies which have applied Queuing Theory in their Cloud provisioning mechanism. Since we do not focus on real time provisioning or load balancing, we only use a Queuing Theory based method to estimate the required number of VMs, when other parameters are constrained (i.e. tight budget, performance target on waiting time or throughput).
+
+\subsection{System Implementation and Evaluation}
+Chapter \ref{cha:system} presented our solutions as an integrated system, which we called CloudRecommender.
+It allows users to compare and select a cloud service based on criteria such as the total cost, the maximum size limit for storage and the memory size for compute instance. 
+Alternatively users can combines multiple selection criteria by telling the system their preference over interested parameters.
+By providing both a web Graphical User Interface (GUI) and an Application Program Interface (API), we exploited the power of a visual programming
+language to further enable intuitive cloud service selection.
+
+Build on the Cloud computing ontology, we initially proceed with
+a relational structure modeled implementation of CoCoOn.
+So it can support simple cloud infrastructure service selection based on a
+declarative Structured Query Language (SQL). 
+The service selection logic developed by our research is
+transactional and applies well-defined SQL semantics for
+querying, inserting, and updating IaaS configurations. In
+addition, the proposed declarative approach is preferable
+over hard coding the sorting and selection algorithm as 
+it allows us to take the advantage of optimized
+query operations (e.g. select and join). 
+
+Real world data was gather for experimentation.
+QoS Profiler was implemented to help in collecting network QoS statistics
+from different end points on the Internet to the cloud data centers.
+On top of CloudHarmony's network test service \cite{cloudharmony_speedtest}, We set up multiple agents at geographically dispersed locations to collect end to end network QoS to various cloud.
+We profiled the network performance continuously, and later used the average for comparison.
+
+\subsection{Conclusion}
+At last, Chapter \ref{cha:conclusion} summarized our findings and highlighted the core contributions.
