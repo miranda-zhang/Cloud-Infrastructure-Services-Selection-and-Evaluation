@@ -1,14 +1,14 @@
 \chapter{Resource Usage Estimation}
 \label{cha:ResourceUsageEstimation}
-Decisions to migrate existing systems to public IaaS clouds can be complicated as evaluating the benefits, risks and costs of using cloud computing is far from straightforward. Furthermore, given the large number of cloud instance types even for a single datacenter (such as AWS), it is not easy to select the type of server instance let alone determine the entire cloud infrastructure as choosing different instance types has different impacts on cost and performance and such decision making information is not readily available in a succinct and organized manner.
+Decisions to migrate existing systems to public IaaS clouds can be complicated as evaluating the benefits, risks and costs of using Cloud computing is far from straightforward. Furthermore, given the large number of Cloud instance types even for a single datacenter (such as AWS), it is not easy to select the type of server instance let alone determine the entire Cloud infrastructure as choosing different instance types has different impacts on cost and performance and such decision making information is not readily available in a succinct and organized manner.
 
-Aiming to eliminate potential bottlenecks for users to take advantage of cloud computing, this paper presents an improved system (which extended the previous work) that further allows informed users (i.e. infrastructure architects, CIOs, system admins) to make multi criteria selection and comparison on IaaS offers considering various bench-marking results. 
+Aiming to eliminate potential bottlenecks for users to take advantage of Cloud computing, this paper presents an improved system (which extended the previous work) that further allows informed users (i.e. infrastructure architects, CIOs, system admins) to make multi criteria selection and comparison on IaaS offers considering various bench-marking results. 
 
-The proposed technique is applicable to selecting Infrastructure as a Service (IaaS) cloud offers, and it allows users to define multiple design-time and run-time requirements. These requirements are then matched against our knowledge base to compute possible best fit combinations of cloud services at IaaS layer. 
+The proposed technique is applicable to selecting Infrastructure as a Service (IaaS) Cloud offers, and it allows users to define multiple design-time and run-time requirements. These requirements are then matched against our knowledge base to compute possible best fit combinations of Cloud services at IaaS layer. 
 
-Quality of Service (QoS) is an important concept in the context of cloud service. When deploying services in a cloud environment, it is necessary to consider and evaluate the impact of network QoS on the performance of underlying user applications/services. Among all the performance characteristics, QoS characteristics, including latencies, network bandwidth, etc, are as important as other ones, such as CPU, memory and disk resources. From cloud service providers’ perspective, they care about QoS very much and heavily invest in it because it has direct impact on user experience. 
+Quality of Service (QoS) is an important concept in the context of Cloud service. When deploying services in a Cloud environment, it is necessary to consider and evaluate the impact of network QoS on the performance of underlying user applications/services. Among all the performance characteristics, QoS characteristics, including latencies, network bandwidth, etc, are as important as other ones, such as CPU, memory and disk resources. From Cloud service providers’ perspective, they care about QoS very much and heavily invest in it because it has direct impact on user experience. 
 
-In our previous work on QoS aware cloud service selection we have compared the network performance; in this paper we will investigate some higher level metrics e.g. benchmark for web server, database, analytics application. Application level metrics can give a more precise measurement of how good the overall system completes assigned tasks.
+In our previous work on QoS aware Cloud service selection we have compared the network performance; in this paper we will investigate some higher level metrics e.g. benchmark for web server, database, analytics application. Application level metrics can give a more precise measurement of how good the overall system completes assigned tasks.
 
 In our experiments we  applied simple and Queuing Theory \cite{queueing_theory} model to estimate best fit resource allocation for achieving target Service Level Agreements (SLA).
 
@@ -16,10 +16,10 @@ In our experiments we  applied simple and Queuing Theory \cite{queueing_theory} 
 
 There is a number of studies \cite{lee:10,RodrigoICPP,xuzichuan} applied Queuing Theory in their Cloud provisioning mechanism. Since we do not focus on real time provisioning or load balancing, we only use a Queuing Theory based method to estimate the required number of VMs. 
 
-PlanForCloud \cite{PlanForCloud}, provides a web-based tool for calculating costs on the IaaS cloud. PlanForCloud enables sophisticated modeling of the components of cloud deployments, including servers, storage, databases and data transfers, as well as usage scenarios that incorporate growth, seasonality and other variability in the consumption of cloud resources. Users first design prospective deployments by creating cloud services such as servers, storage and databases. Then, this runs the prospective deployments through a simulation engine to create a detailed three year cost report. It can be used to clone deployment, change options and growth patterns to do what-if analysis. This tool, like previously discussed cost calculators assumes that users know their cloud configuration set-up
-and want to compare different cloud providers.
+PlanForCloud \cite{PlanForCloud}, provides a web-based tool for calculating costs on the IaaS cloud. PlanForCloud enables sophisticated modeling of the components of Cloud deployments, including servers, storage, databases and data transfers, as well as usage scenarios that incorporate growth, seasonality and other variability in the consumption of Cloud resources. Users first design prospective deployments by creating Cloud services such as servers, storage and databases. Then, this runs the prospective deployments through a simulation engine to create a detailed three year cost report. It can be used to clone deployment, change options and growth patterns to do what-if analysis. This tool, like previously discussed cost calculators assumes that users know their Cloud configuration set-up
+and want to compare different Cloud providers.
 
-The AWS sizing tool developed by CopperEgg \cite{AWS_Sizing_Tool} aims to solve the problem of selecting the most appropriate EC2 instance for a given application. CopperEgg claims that the AWS sizing tool accurately benchmarks enterprise and cloud servers to help customers choose the proper Amazon EC2 instance types, pricing, and Elastic Block Storage (EBS) configurations from over 200 possible Amazon Web Services (AWS) combinations. This tool benchmarks the actual user application and matches the most appropriate EC2 instance. However it is limited to only AWS EC2 instances and also requires the application to be run over a 24 hour period before providing a decision.
+The AWS sizing tool developed by CopperEgg \cite{AWS_Sizing_Tool} aims to solve the problem of selecting the most appropriate EC2 instance for a given application. CopperEgg claims that the AWS sizing tool accurately benchmarks enterprise and Cloud servers to help customers choose the proper Amazon EC2 instance types, pricing, and Elastic Block Storage (EBS) configurations from over 200 possible Amazon Web Services (AWS) combinations. This tool benchmarks the actual user application and matches the most appropriate EC2 instance. However it is limited to only AWS EC2 instances and also requires the application to be run over a 24 hour period before providing a decision.
 
 \section{Problem Abstraction}
 \subsection{Description}
@@ -32,7 +32,7 @@ I would like to estimate the system performance, give benchmarking results (serv
 
 For example , a company maybe owning 4 servers with configuration (4GB, 1.8GHz CPU), but they need to expand their business in a new country and support double the number of customers they currently support. They want to evaluate the option to move the in house infrastructure to Cloud, they could run benchmark software on their servers, to get the service time for their business operations, like they can run Jmeter to get the number of web requests they can handle per second (i.e. 20) for the overall cluster (4 machines). 
 Then They can run the same benchmark software on one of the Cloud servers(maybe with 16GB RAM 3.6GHz CPU), they may get a 10 request per second result.
-The simplest way to estimate number of cloud servers needed would be, they just get 2 of this Cloud servers to achieve 20 requests per second (average/peak time) performance.
+The simplest way to estimate number of Cloud servers needed would be, they just get 2 of this Cloud servers to achieve 20 requests per second (average/peak time) performance.
 
 This is the part I'm trying to work out at the moment.
 
@@ -483,7 +483,7 @@ Where 86400 is the number of seconds in a day (24 hours). $R_{max}$ is the maxim
 \subsubsection{Using the CloudHarmony API}
 
 The CloudHarmony API provides an API for accessing different benchmark results for a
-range of cloud services [18]. The two relevant API endpoints are:
+range of Cloud services [18]. The two relevant API endpoints are:
 \begin{lstlisting}
 https://www.cloudharmony.com/ws/getServicesWithBenchmark
 benchmarkId
@@ -493,9 +493,9 @@ serverId
 lastBenchmarksOnly
 \end{lstlisting}
 
-The first endpoint lists the available cloud services (and cloud servers) that have been
+The first endpoint lists the available Cloud services (and Cloud servers) that have been
 benchmarked with the benchmarkId (mysql-bench:select and mysql-bench:insert), and the
-second endpoint retrieves the benchmark results for all the cloud servers that are passed as the
+second endpoint retrieves the benchmark results for all the Cloud servers that are passed as the
 query parameters. Since we need the latest benchmark result, we also include the
 ‘lastBenchmarksOnly’ parameter in the query string. The API returns a JSON response that
 can be parsed and utilised.

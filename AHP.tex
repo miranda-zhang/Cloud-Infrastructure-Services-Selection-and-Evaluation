@@ -1,31 +1,21 @@
 \chapter{Ranking and Recommendation} 
 \label{cha:AHP}
-In this chapter we propose a technique that aids in network QoS-aware selection of cloud services for provisioning mobile (or device with internet access but limited processing capability and storage), real-time and interactive applications.
-We build upon our previous work in Chapter \ref{cha:cocoon}, where we have developed an automated approach, along with a unified domain model capable of fully describing infrastructure services in Cloud computing. 
-This approach will take into account real-time, variable network QoS constraints.
-It not only allows users to compare and select a cloud service based on a single criterion (e.g. total cost, max size limit for storage, memory size for compute instance), but also supports 
+In this chapter we propose a AHP based Quality of Service (QoS) aware selection technique for Cloud Infrastructure Services.
+QoS-awareness is important for application provisioning, from mobile to real-time and interactive applications, or device with internet access but limited processing capability, application performance is always one of the requirements.
+We build upon our previous work in Chapter \ref{cha:cocoon}, where we have developed a unified domain model capable of fully describing infrastructure services in Cloud computing. 
+Our approach will take into account real-time, variable network QoS constraints.
+It not only allows users to compare and select a Cloud service based on a single criterion (e.g. total cost, max size limit for storage, memory size for compute instance), but also supports 
 a utility function that combines multiple selection criteria pertaining to storage, compute, and network services.
 
-\section{The Problem of Selecting Optimal Service Configuration}
+\section{Motivation}
 \label{sec:TheProblemOfSelectingOptimalServiceConfiguration}
-While the elastic nature of cloud services makes it suitable for provisioning all kinds of applications, the heterogeneity of cloud service configurations and their distributed nature raises some serious technical challenges. 
-The cloud computing landscape is evolving with multiple and diverse options for compute (also known as virtual machines) and storage services. Hence, application owners are facing a daunting task when trying to select cloud services that can meet their constraints. According to Burstorm \cite{Burstorm} there are over 426 of various compute and storage service providers with deployments in over 11,072 locations. Even within a particular provider there are different variations of the services. For example, Amazon Web Service (AWS) has 674 different offerings differentiated by price, QoS features and location. Add to this every quarter they add about 4 new services, change business models (price and terms) and sometimes even add new locations. To be able to select the best mix of service offering from an abundance of possibilities, application owners must simultaneously consider and optimize complex dependencies and heterogeneous sets of criteria (price, features, location, QoS etc.). For instance, it's not enough to just select optimal cloud storage service, corresponding computing capabilities are essential to guarantee that one is able to process the data as fast as possible while minimizing the cost.
+While the elastic nature of Cloud services makes it suitable for provisioning all kinds of applications, the heterogeneity of Cloud service configurations and their distributed nature raises some serious technical challenges. 
+The Cloud computing landscape is evolving with multiple and diverse options for compute (also known as virtual machines) and storage services. Hence, application owners are facing a daunting task when trying to select Cloud services that can meet their constraints. According to Burstorm \cite{Burstorm} there are over 426 of various compute and storage service providers with deployments in over 11,072 locations. Even within a particular provider there are different variations of the services. For example, Amazon Web Service (AWS) has 674 different offerings differentiated by price, features and location. Add to this, every quarter they add about 4 new services, change business models (price and terms) and sometimes even add new locations. To be able to select the best mix of service offerings from an abundance of possibilities, application owners must simultaneously consider and optimize complex dependencies and heterogeneous sets of criteria (price, features, location, QoS etc.). For instance, it is not enough to just select suitable storage service, but also essential to guarantee that corresponding computing capabilities are enough to process the data as fast as possible while minimizing the cost.
 
-\subsection{Ambiguous Terminologies}
-Ambiguous terminologies are often used to describe similar configurations,
-for instance different units of measurements are used for similar metrics.
-We performed unit conversions during instantiation of
-concepts to simplify the discovery process.
-
-For example, an Amazon EC2 Micro Instance has 613 MB
-of memory which is converted to approximately 0.599 GB. Another example is the
-CPU clock speed. Amazon refers to it as “ECUs”\cite{AmazonEC2}:
-“\textit{One EC2 Compute Unit provides the equivalent COMPUTE capacity of a 1.0-1.2 GHz 2007 Opteron or 2007 Xeon processor. This is also the equivalent to an early-2006 1.7 GHz Xeon processor referenced in our original documentation}”.
-In 2007, AMD and Intel released both dual-core and quad-core models of the Opteron and Xeon chips, respectively. So it is obviously not clear what an Amazon EC2 Compute Unit compares to. To eliminate this ambiguity, we obtained the compute service clock speed by trying out the actual instance under Linux OS and run \texttt{more /proc/cpuinfo} on it.
-
-\subsection{Varied Price Model}
-Another example of disparity between different Cloud providers is the price model of “on Demand instances”. GoGrid’s plan, although having a similar concept to Amazon’s On Demand and Reserved Instance, gives very little importance to what type or how many of compute services a user is deploying. GoGrid charges users based on what they
-call RAM hours – 1 GB RAM compute service deployed for 1 hour consumes 1 RAM Hour. A 2 GB RAM compute service deployed for 1 hour consumes 2 RAM Hour.
+\subsection{The Problem of Varied Pricing Model}
+Varied pricing model between different Cloud providers adds into the problem.
+Another example of disparity is the model of “on Demand instances”. Although GoGrid’s plan has a similar concept to Amazon’s On Demand and Reserved Instance, it gives very little importance to what type or how many of compute services a user is deploying. GoGrid charges users based on what they
+call RAM hours – 1 GB RAM compute service deployed for 1 hour consumes 1 RAM Hour. This means a 2 GB RAM compute service deployed for 1 hour consumes 2 RAM Hour.
 It is worthwhile mentioning that only Azure clearly states that one month is considered to have 31 days. This is important as the key advantage of the fine grained pay-as-you-go price model which, for example, should charge a user the same when they use 2GB for
 half a month or 1 GB for a whole month. 
 Other vendors merely give a GB-month price
@@ -62,10 +52,11 @@ service interface, on any component (Blobs, Tables or Queues) of Windows Azure S
 \textbf{Ninefold}                   & Cloud Storage                      & \multicolumn{2}{l|}{\cellcolor[HTML]{FD6864}GET, PUT, POST, COPY, LIST and all other transactions}          & \cellcolor[HTML]{FFFC9E}       \\ \hline
 \textbf{SoftLayer}                  & Object Storage                     & \multicolumn{3}{l|}{\cellcolor[HTML]{9AFF99}Not Specified/Unknow}                                                                            \\ \hline
 \textbf{AT and T Synaptic}          & Storage as a Service               & \multicolumn{3}{l|}{\cellcolor[HTML]{9AFF99}Not Specified/Unknow}                                                                            \\ \hline
+\textbf{Cloudcentral}          & Object Storage               & \multicolumn{3}{l|}{\cellcolor[HTML]{9AFF99}GET, PUT}                                                                            \\ \hline
 \end{tabular}
 }
 \caption{
-    Depiction of configuration heterogeneities in request types across storage services.
+    Depiction ofc heterogeneities in request types across storage services.
     \colorbox{red}{Red} means an access fee is charged;
     \colorbox{green}{green} means the service is free;
     and \colorbox{yellow}{yellow} means access fees are not specified,
@@ -74,7 +65,8 @@ service interface, on any component (Blobs, Tables or Queues) of Windows Azure S
 \label{table:request_types_across_storage_services}
 \end{table}
 
-We collected service configuration information from a number of public Cloud providers (e.g., Windows Azure, Amazon, GoGrid, RackSpace, Nirvanix, Ninefold, SoftLayer, AT and T Synaptic, Cloud Central, etc.) to demonstrate the generic nature of the domain model with respect to capturing heterogeneous configuration (see Table \ref{table:configuration_heterogeneities}) information of infrastructure services. 
+We collected service configuration information from a number of public Cloud providers: Windows Azure, Amazon, GoGrid, RackSpace, Nirvanix, Ninefold, SoftLayer, AT and T Synaptic, Cloud Central, etc. It is show in \Cref{table:configuration_heterogeneities}. This table depicts the different pricing scheme and varied terminologies of providers.
+
 
 \begin{table}[htbp]\scriptsize\centering
 \setlength{\arrayrulewidth}{1.5pt}
@@ -104,100 +96,57 @@ We collected service configuration information from a number of public Cloud pro
 \hline
 \multicolumn{8}{l}{* Other Plans includes Monthly/Quarterly/Yearly Plan, Reserve and Bidding Price Option}
 \end{tabular}
-\caption{Depiction of configuration heterogeneities in compute and storage services
+\caption{Depiction of pricing and terminology heterogeneities in compute and storage services
 across providers. \magenta{Red blank cells} in the table mean that a configuration parameter is
 \magenta{not supported}.
 Some providers offer their services under a different pricing scheme than pay-as-
-you-go. In Table II we refer to these schemes as other plans (e.g. Amazon Reduced
+you-go, we refer to these schemes as other plans (e.g. Amazon Reduced
 redundancy, reserved price plans, GoGrid Pre-Paid plans). Table last updated October
 2012.}
 \label{table:configuration_heterogeneities}
 \end{table}
 
-\subsection{Quality of Service Constraints}
+\subsection{The Need to Incorporate Quality of Service Constraints}
 \label{sec:qos}
 
-Cloud computing embraces an elastic paradigm where applications establish on-demand interactions with services to satisfy required Quality of Service (QoS) such as response time, throughput, availability and reliability. QoS targets are encoded in Legal Service Level Agreement (SLA) documents, which state the nature and scope of the QoS parameters. However, selecting and composing the right services meeting application requirements is a challenging problem.
+Cloud computing embraces an elastic paradigm where applications establish on-demand interactions with services to satisfy required QoS such as response time, throughput, availability and reliability. QoS targets are encoded in Legal Service Level Agreement (SLA) documents, which state the nature and scope of the QoS parameters. However, selecting and composing the right services meeting application requirements is a challenging problem.
 
 For different application deployment scenarios (e.g., multimedia, eResearch, and enterprise applications),
-the question is: How to aggregate QoS configurations across the layers?
-Notably, QoS aware service selection problem \cite{Jaeger2005} is a multi-criteria optimization problem, in order to solve it, we can employ a Multi-criteria decision-making technique, which will be explained in Chapter \ref{cha:AHP}.
+the question is: How to satisfy QoS requirements across the layers?
+Notably, QoS aware service selection problem \cite{Jaeger2005} is a multi-criteria optimization problem. In order to solve it, we can employ a Multi-criteria decision-making technique, which will be explained in \Cref{sec:RankingWithAnalyticHierarchyProcess}.
 
+\subsection{Applications Use Case Examples}
 We next provide a few examples to demonstrate different types of applications with the needs to cater for real-time QoS requirements during their deployment lifecycle.
 
-\textbf{Interactive Online Games:} In the gaming industry, World of Warcraft counts over six million unique players on daily basis. The operating infrastructure of this Massively Multiplayer Online Role Playing Game (MMORPG) comprises more than 10,000 computers \cite{nae2011dynamic}. Depending on the game, typical response times to ensure fluent play must remain below 100 milliseconds in online First Person Shooter (FPS) action games  \cite{beigbeder2004effects} and below 1-2 seconds for Role-Playing Games (RPGs). A good game experience is critical for keeping the players engaged, and has an immediate consequence on the earnings and popularity of the game operators. Failing to deliver timely simulation updates leads to a degraded game experience and triggers player departure and account closures \cite{shaikh2006demand}. Startup gaming company with no existing infrastructure could launch a new game using public cloud infrastructure as cloud services offers the flexibility to scale on demand with no upfront investment. Using cloud services, the game application services can be dynamically allocated or de-allocated according to demand fluctuations. Game companies can also better serve the diverse international users with the global presence of data centers owned by Cloud providers.
+\textbf{Interactive Online Games:} In the gaming industry, World of Warcraft counts over six million unique players on daily basis. The operating infrastructure of this Massively Multiplayer Online Role Playing Game (MMORPG) comprises more than 10,000 computers \cite{nae2011dynamic}. Depending on the game, typical response times to ensure fluent play must remain below 100 milliseconds in online First Person Shooter (FPS) action games  \cite{beigbeder2004effects} and below 1-2 seconds for Role-Playing Games (RPGs). A good game experience is critical for keeping the players engaged, and has an immediate consequence on the earnings and popularity of the game operators. Failing to deliver timely simulation updates leads to a degraded game experience and triggers player departure and account closures \cite{shaikh2006demand}. Startup gaming company with no existing infrastructure could launch a new game using public Cloud infrastructure as Cloud services offers the flexibility to scale on demand with no upfront investment. Using Cloud services, the game application services can be dynamically allocated or de-allocated according to demand fluctuations. Game companies can also better serve the diverse international users with the global presence of data centers owned by Cloud providers.
 
 \textbf{Real-time Mobile applications:} There is an explosion of
 (primarily mobile based) communication apps. For example: WhatsApp, acquired by Facebook, has  450 million users \cite{ref7};
 Viber, acquired by Rakuten, has 200 million users \cite{ref8};
 and WeChat, a Chinese rival, has 270 million users \cite{ref9}.
-For these apps, low latency (a QoS constraint) is very important for the real time collaboration experience. For example, video conferencing, has a limit of about 200 to 250 milliseconds delay for a conversation to appear natural \cite{weinman2011time}. These apps have similar requirements as the game apps. They require large number of servers to support millions of users, need optimization on latency, speed and throughput. It's worth mentioning that even for a generic web application, there are experiments with delaying the page in increments of 100 milliseconds and found that even very small delays would result in substantial and costly drops in revenue \cite{weinman2011time}.
+For these apps, low latency is very important for the real time collaboration experience. For example, video conferencing, has a limit of about 200 to 250 milliseconds delay for a conversation to appear natural \cite{weinman2011time}. These apps have similar requirements as the game apps. They require large number of servers to support millions of users, need optimization on latency, speed and throughput. It is worth mentioning that even for a generic web application, there are experiments with delaying the page in increments of 100 milliseconds, results show that even very small delays would result in substantial and costly drops in revenue \cite{weinman2011time}.
 
-\textbf{Big Data, IoT (Internet of Things) and eScience:} We are closing in on the transfer of a zettabyte of data annually \cite{ref11}, resulting from internet search, social media, business transactions, and content distribution. Similarly, scientific disciplines increasingly produce, process, and visualize data sets gathered from sensors \cite{GHadoop}. If the prediction holds true, then the Square Kilometer Array (SKA) radio telescopes will transmit 400,000 petabytes ($\sim$400 exabytes) per month or a whopping 155.7 terabytes per second \cite{ref12}. Furthmore, European Space Agency (ESA) will launch several satellites in the next few years \cite{ref13}, which will collect data about the environment, such as air temperatures and soil conditions, and stream that data back in real time for analysis.  Similarly in the finance industry, New York Stock Exchange creates 1 terabyte of market and reference data per day covering the use and exchange of financial instruments. On the other hand, Twitter feeds generate 8 terabytes of data per day of social interactions \cite{ref14}. Such ``Data Explosions'' has led to research issues such as: how to effectively and optimally manage and analyze such large amount of data. The issue is also known as the 'Big Data' problem \cite{hey2003data}, which is defined as the practice of collecting complex data sets so large that it becomes difficult to analyze and interpret manually or using on-hand data management applications (e.g., Microsoft Excel). As both storing and analyzing the data requires massive amount of storage capacity and processing power. Companies and/or institutions may want to offload the complexity of managing hardware infrastructure to Cloud providers who are specialized in that, plus eliminating the need to wait for facilities to be built.
+\textbf{Big Data, IoT (Internet of Things) and eScience:} We are closing in on the transfer of a zettabyte of data annually \cite{ref11}, resulting from internet search, social media, business transactions, and content distribution. Similarly, scientific disciplines increasingly produce, process, and visualize data sets gathered from sensors \cite{GHadoop}. If the prediction holds true, then the Square Kilometer Array (SKA) radio telescopes will transmit 400,000 petabytes ($\sim$400 exabytes) per month or a whopping 155.7 terabytes per second \cite{ref12}. Furthmore, European Space Agency (ESA) will launch several satellites in the next few years \cite{ref13}, which will collect data about the environment, such as air temperatures and soil conditions, and stream that data back in real time for analysis.  Similarly in the finance industry, New York Stock Exchange creates 1 terabyte of market and reference data per day covering the use and exchange of financial instruments. On the other hand, Twitter feeds generate 8 terabytes of data per day of social interactions \cite{ref14}. Such \enquote{Data Explosions} has led to research issues such as: how to effectively and optimally manage and analyze a large amount of data. The issue is also known as the \enquote{Big Data} problem \cite{hey2003data}, which is defined as the problem of collected data sets are too large to analyze and interpret manually or using on-hand data management applications (e.g., Microsoft Excel). As both storing and analyzing the data requires massive amount of storage capacity and processing power. Companies and/or institutions may want to offload the complexity of managing hardware infrastructure to Cloud providers who are specialized in that, plus eliminating the need to wait for facilities to be built.
 
 \textbf{Other:} Apart from the above mentioned scenarios, there are many more cases our proposed solution would be useful.
 
-A stock investor, individual or firm, may want to test out a new strategy for monitoring analyzing data which automatically triggers alert when certain price pattern or keyword is identified in the source data. This may require a lot of compute resources periodically.
 System administrators and developers may need a lot of simulated clients from all around the world for a website load testing before its official release.
 
 A bitcoin    \cite{bedford2013bitcoin} (or some other similar cryptocurrencies \cite{ref17}) miner may decide to invest on some additional resource in mining when the price of the currency is high, and stop the mining when the profit does not justify the expense anymore.
 
-\section{Incorporating Network QoS-awareness in Service Selection Process}
-In Chapter \ref{cha:cocoon}, we have extensively investigated
-how high automation on service discovery can be achieved with the ontology model.
-The presented data collection process only covered the properties of Cloud
-resources that are known at design time, for example,
-price, provider, whereas QoS data are not handled.
-Because they can only be recorded after at least one execution
-cycle of a Cloud service, like disk IO operations,
-network speed etc.
-In this section, we propose a technique that aids in network QoS-aware selection of cloud services for provisioning mobile (or device with internet access but limited processing capability and storage), real-time and interactive applications. We build upon our previous work where we have developed an automated approach, along with a unified domain model capable of fully describing infrastructure services in Cloud computing  \cite{CoCoOn2012,GECON2012}. While our initial approach supports simple cloud infrastructure service selection based on declarative Structured Query Language (SQL), it does not take into account real-time, variable network QoS constraints, consequently leads to the work of this chapter.
+\section{Limitations of Existing Approaches}
+In Chapter \ref{cha:cocoon}, we have presented an ontology model, we will further investigate
+how high automation on service discovery can be achieved with it.
+In this section, we propose a technique that aids in network QoS-aware selection of Cloud services for provisioning mobile (or device with internet access but limited processing capability and storage), real-time and interactive applications.
 
-As the cloud data centers are distributed across the Internet, the network QoS (data transfer latency) varies. This variation is dependent upon the location of data center and location of input data stream. Current approaches do not differentiate between the QoS of compute and storage services and the QoS of the wide area network that interconnects input data stream sources to cloud data centers. This raises a research question: how to optimize the process of choosing the best compute and storage services, which are not only optimized in terms of price, availability, processing speed but also offers good QoS (e.g. network throughput and response delivery latency)?
+As the Cloud data centers are distributed across the Internet, the network QoS (data transfer latency) varies. This variation is dependent upon the location of data center and location of input data stream. Current approaches do not differentiate between the QoS of compute and storage services and the QoS of the wide area network that interconnects input data stream sources to Cloud data centers. This raises a research question: \textbf{how to optimize the process of choosing the best compute and storage services, which are not only optimized in terms of price, availability, processing speed but also offers good QoS (e.g. network throughput and response delivery latency)?}
 
-There are methods proposed for network aware service composition    \cite{yu2007efficient}   \cite{zeng2004qos} \cite{zheng2013qos} considering generic web service, i.e. at the Software-as-a-Service (SaaS) and Platform-as-a-Service (PaaS) level. But the compatibility constrains at the IaaS level are different from web service. For example, generic web services are distinguished by their features, QoS and prices. It does not make sense to include 2 exact same services in one composition as one job does not need to be done twice, but using multiple quantity of an IaaS offer is perfectly valid.
+There are methods proposed for network aware service composition \cite{yu2007efficient}   \cite{zeng2004qos} \cite{zheng2013qos} considering generic web services, i.e. at the Software-as-a-Service (SaaS) and Platform-as-a-Service (PaaS) level. But the constrains at the IaaS level are different from web services. For example, generic web services are distinguished by their features, QoS and prices. It does not make sense to include 2 exact same services in one composition as one job does not need to be done twice, but using multiple quantity of an IaaS offer is perfectly valid.
 
-We implement a generic service, see Section \ref{sec:QoSProfilerDesign}, that helps in collecting network QoS values from different points on the Internet (modeling big data source location) to the cloud data centers.
-We collected the statistics using the ``speedtest"  service provided by CloudHarmony.
-
-Klein et al. \cite{klein2012towards} proposed a highly theoretical model based on Euclidean distance for estimating latency, which we believe their theoretical perfect distance assumption can not be practically accurate. However, we can use this model to estimate latency when QoS data is not available for a new client location.
-
-\section{QoS Profiler}
-\label{sec:QoSProfilerDesign}
-The QoS profiling system consists of multiple agents at geographically dispersed locations to collect and process data, shown in Fig \ref{fig:QoSMonitoringServiceNetworkTopology}.
-For more implementation details please refer to Chapter \ref{cha:system}.
-If we look at individual slave node, we can see every node profiles the QoS statistics to various Clouds from each location. Bashed scripts are written to export data from each node. Master node pulls data from its children nodes, access keys are required for this operation. Then the CSV formatted data is imported to the master database, where appropriated merge operation is performed.
-
-\begin{figure}[!ht]
- \centering
- \includegraphics[width=\textwidth,keepaspectratio]{Figures/QoS/figure2.png}
- \caption{QoS Monitoring Service Network Topology. We have used 2 Clouds namely: Nectar Research Cloud and Amazon Web Service. Since Nectar Cloud is free for researchers, we kept the instances running all the time, hence the decision to put master in Nectar. Because there is a limit of quota in Nectar and Amazon have greater geographical coverage in terms of data-center locations. We use additional Spot instance from Amazon as slave data crawlers. A QoS Monitoring Node profiles Download Speed, Latency and Upload Speed at each datacenter in various Clouds from different locations.}
-\label{fig:QoSMonitoringServiceNetworkTopology}
-\end{figure}
-
-Initially, the QoS data was collected every 2 hours by running the ``speedtest'' service of CloudHarmony. A single run takes more than an hour to finish hence we are collecting it at maximum possible granularity. Later by analyzing the data, we conclude that such high frequency is not necessary, as the average QoS from a particular location to a particular data center most of the time fluctuating between a resealable range. That means the average would be pretty stable. We can use the historical data as a pretty reliable indication. Note that difference between data-centers and various locations are still huge as expected, see Fig. \ref{fig:DownloadSpeedFromAmazonToMelbourne}. In the future we may allow a combination of real time and off-line values to be used if necessary.
-
-\begin{figure}[!ht]
- \centering
- \includegraphics[width=\textwidth,keepaspectratio]{Figures/QoS/figure5.pdf}
- \caption{Download speed from Amazon data centers to Melbourne}
-\label{fig:DownloadSpeedFromAmazonToMelbourne}
-\end{figure}
-
-Figure \ref{fig:DownloadSpeedFromAmazonToMelbourne} shows that geographically close data center has (as high as 25 times) better network performance, hence this validates the fact that location is one of the important criteria which should be considered during selection process. Our measurements also indicate that distance is not the only factor that effects the network performance, as shown in Fig. \ref{fig:DownloadSpeedAgainstDistance}, data centers are ordered from closest to furthest from left to right, Tokyo and Brazil clearly perform poorly than expected. Hence, we consider the need for active probing and profiling of network QoS from user's endpoint connection to the cloud data centers. By doing so we get clear picture of data centre's network QoS from the users' device that may be deployed across topologically distributed network locations. Note that we have left out Sydney on purpose. Fig \ref{fig:DownloadSpeedFromAmazonToMelbourne} shows the exponential increase in speed between Sydney and Melbourne compare to overseas locations, while Fig \ref{fig:DownloadSpeedAgainstDistance} shows the linear relationship between downloading speed and distance among overseas locations. We are aware that while it is generally true that the geographical distance between any pair of servers (or users) on the Internet affects the route trip time (RTT), the bandwidth between them is not necessarily determined by the distance, many other aspects can affect the user end QoS, like the last-mile home-connecting technology, local Internet traffic condition. Our measurements are only providing suggestive base for further optimisation, user's actual experience will vary.
-
-\begin{figure}[!ht]
- \centering
- \includegraphics[width=\textwidth,keepaspectratio]{Figures/QoS/figure6.pdf}
- \caption{Download Speed Against Distance.}
-\label{fig:DownloadSpeedAgainstDistance}
-\end{figure}
-
-\section{Limitation to Existing Approaches}
-For research problem described in Section \ref{subsec:service_comparison}, a number of research \cite{Li2010} and commercial projects provide simple cost calculation or benchmarking and status monitoring, but none is capable to consolidate all aspects and provide a comprehensive ranking of infrastructure services.
-For instance, CloudHarmony \cite{cloudharmony_speedtest} provides up-to-date benchmark results without considering cost, Cloudorado \cite{Cloudorado} calculates the price of IaaS-level compute services based on static features (e.g., processor type, processor speed, I/O capacity, etc.) while ignoring dynamic QoS features (e.g., latency, throughput, load, utilization).
+For research problems described in \Cref{sec:research_problem}, a number of research \cite{Li2010} and commercial projects provide simple cost calculation or benchmarking and status monitoring, but none is capable to consolidate all aspects and provide a comprehensive ranking of infrastructure services.
+For instance, CloudHarmony \cite{Cloudharmony_speedtest} provides up-to-date benchmark results without considering cost, Cloudorado \cite{Cloudorado} calculates the price of IaaS-level compute services based on static features (e.g., processor type, processor speed, I/O capacity, etc.) while ignoring dynamic QoS features (e.g., latency, throughput, load, utilization).
 Yuruware had claimed to have comparison features, but it is no longer available.
-Table \ref{table:comparison} shows a brief comparison of the CloudRecommender with other existing products we mentioned previously. We have to clarify that we are more interested in the first 3 features.
+Table \ref{table:comparison} shows a brief comparison of the CloudRecommender with other existing products we mentioned previously. We have to clarify that cloud management is not in scope of this work.
 
 To further distinguish ourselves from others, we offer the following two innovative features when ranking, selecting, and comparing various vendor services: 1) allow users to choose to include the QoS requirements during comparison; 2) when users want to take into account mixed qualitative (e.g. hosting region, operating system type) and quantitative criteria, we apply the Analytic Hierarchy Process (AHP) to aggregate numerical measurements and non numerical evaluation. Results are personalized according to each user's preferences, because AHP takes users' perceived relative importance of criteria (pair-wise comparisons) as inputs.
 
@@ -230,70 +179,73 @@ CloudRecommender & \cellcolor{light_gray}Fixed & \cellcolor{light_gray}Yes & \ce
 \end{center}
 \end{table}
 
-\section{Choosing a Multi Criteria Decision Making Technique}
-The selection of cloud service involve weighing the pros and cons of
+\section{Proposed Approaches}
+The selection of Cloud service involves weighing the pros and cons of
 of multiple criteria,
 this is fundamentally a multi criteria decision making problem.
 We surveyed some well know MCDM methods in Section \ref{sec:MCDA}.
 We chose AHP because it handles multiple criteria,
 i.e. capable to optimize mixed qualitative and quantitative criteria.
-And AHP doesn't involve complex mathematics, it is very intuitive to use.
+And AHP does not involve complex mathematics, it is very intuitive to use.
 In comparison, SAW is strong in single dimensional problems, but not perform as 
-good on multi dimensional problems; WPM has a problem dealing with the equal weight of decision matrices. PROMETHEE requires generalized criteria to be defined, such input is difficult for an inexperienced user to provide; the mechanism of VIKOR doesn't fit our problem. 
+good on multi dimensional problems; WPM has a problem dealing with the equal weight of decision matrices. PROMETHEE requires generalized criteria to be defined, such input is difficult for an inexperienced user to provide; the mechanism of VIKOR does not fit our problem. 
 Furthermore, one problem encountered in most MCDM methods (e.g. TOPSIS) is computation of the weightage of the criteria. This problem is tackled by various ways like AHP, cross-entropy, fuzzy preference programming, etc \cite{AHPvsTOPSIS}.
-This also make AHP stand out as a stand along solution, which does not partially depends on other methods.
+This also makes AHP stand out as a stand along solution.
 
-\section{Ranking with Analytic Hierarchy Process}
-We will present how we build a decision making framework based on Analytic Hierarchy Process (AHP) to solve the proposed problems in Section \ref{sec:research_problem}.
-It will not only allows users to compare and select a cloud service based on a single criterion (e.g. total cost, max size limit for storage, memory size for compute instance), but also supports a utility function that combines multiple selection criteria pertaining to storage, compute, and network services.
+\subsection{Ranking with Analytic Hierarchy Process}
+\label{sec:RankingWithAnalyticHierarchyProcess}
+We will present how we build a decision making framework based on Analytic Hierarchy Process (AHP).
+It will not only allows users to compare and select a Cloud service based on a single criterion (e.g. total cost, max size limit for storage, memory size for compute instance), but also supports a utility function that combines multiple selection criteria pertaining to storage, compute, and network services.
 In this chapter we focus on the following topics:
 
-\textbf{1. Problem Formulation.} We first provide a clear formulation of the research problem by identifying the most important cloud service selection criteria relevant to specific real-time QoS-driven applications, selection objectives, and cloud service alternatives.
+\textbf{1. Problem Formulation.} We first provide a clear formulation of the research problem by identifying the most important Cloud service selection criteria relevant to specific real-time QoS-driven applications, selection objectives, and Cloud service alternatives.
 
 \textbf{2. Multi-criteria Optimization.} Then illustrations are provided on how AHP based decision (service selection) making technique are implemented. Examples are provided on how to handles multiple quantitative (i.e. numeric) as well as qualitative (descriptive, non numeric, like location, CPU architecture: 32 or 64 bit, operating system) criteria. How pair-wise comparisons can be conducted to determines the relative importance of criteria is also described.
 
 We also developed an decision support tool with the proposed techniques. It will automate and map users' specified application requirements to specific Cloud service configurations. The details and evaluations (conducted in real-world context) are presented in Chapter \ref{cha:system}.
 
-\section{Problem Formulation}
-We first provide a clear formulation of the research problem by identifying the most important cloud service selection criteria relevant to specific real-time QoS-driven applications, selection objectives, and cloud service alternatives.
+\subsubsection{Cost Estimation}
+We first provide a clear formulation of the research problem by identifying the most important Cloud service selection criteria relevant to specific real-time QoS-driven applications, selection objectives, and Cloud service alternatives.
 
-To give a conceptual explanation of our approach to address the QoS optimization problem, we define a formal model in this section. Based on the formal model, we can describe the involved concepts that are incorporated in the algorithm presented later. Particularly, we define a cost estimation function using resource utilization estimations, and a benefit-cost ratio-based evaluation function which considers weights. Furthermore, we present a pair-wise comparison method to calculate normalized weights. For more precise resource utilization estimations, we show how variable resource utilization patterns can be incorporated into cost estimation.
 
-\subsection{Cost Estimation}
-Let "a" be the resource usage of a particular resource from a data center location of a Cloud provider. For example, we can use $a_{storage,any,any}=50 GB$ to represent user's need to store 50 GB of data in the cloud. The symbols' meanings are summarized in Table \ref{table:formula_symbols}. Equation \ref{eq:a} means the usage of the compute resource $r$ from provider $c$ at location $l$ is between $0$ and $n$. This value is usually suggested by users. Our assumption is that users may have a rough estimate of how much resources they might need.
+\begin{equation}
+{{\rm{a}}_{r,c,l}} \in \{ 0,1, \ldots ,n\}\label{eq:a}
+\end{equation}
 
-\begin{table}[!ht]
-\begin{center}\caption{Symbols used in the formulas} \label{table:formula_symbols}
-\begin{tabular}{|c|p{10cm}|}
-\hline
+Let "a" be the resource usage of a particular resource from a data center location of a Cloud provider. For example, we can use $a_{storage,any,any}=50 GB$ to represent user's need to store 50 GB of data in the Cloud. The symbols' meanings are summarized in \Cref{table:formula_symbols}. Equation \eqref{eq:a} means the usage of the compute resource $r$ from provider $c$ at location $l$ is between $0$ and $n$. This value is usually suggested by users. Our assumption is that users may have a rough estimate of how much resources they might need.
+
+\begin{longtable}[!ht]{|c|p{10cm}|}
+\caption{Symbols Used in the Formulas} \label{table:formula_symbols}\\
+\toprule
 \textbf{Symbol }&  \textbf{Meaning  }  \\
-\hline a & Resource usage behave like a decision variable. \\
+\midrule
+\endfirsthead
+a & Resource usage behave like a decision variable. \\
 \hline C & Set of all possible Cloud providers. \\
 \hline c & Cloud Provider, e.g. Amazon,Rackspace, GoGrid. \\
-\hline D & Downloading speed. \\
+\hline D & Downlink speed. \\
 \hline i & Identifies a request. \\
 \hline L & Set of all possible datacenter locations. \\
 \hline l & A datacenter location, e.g. Sydney, Tokyo. \\
-\hline $\zeta$ & Latency (download). \\
-\hline  M & Memory Size (e.g. 8G). \\
+\hline $\zeta$ & Downlink latency. \\
+\hline  M & Memory Size (e.g. 8 G). \\
 \hline  P & Price \\
 \hline  R & Set of all possible resources, including all types whether it is Compute, Storage or Network.\\
 \hline  r & Identifies a source, e.g. GoGrid XX - Large Instance, S3 Storage Serive, EC2 instance.\\
-\hline $\gamma $ & $\;$ Set of Requests from one user. \\
+\hline $\gamma $ & Set of Requests from one user. \\
 \hline  S & Storage. \\
 \hline  T & Period of time the resource is used. \\
 \hline  t & Exact point in time, like a time stamp. \\
 \hline  U & CPU speed. \\
-\hline $\mu$ & Uploading speed. \\
+\hline $\mu$ & Uplink speed. \\
 \hline w & Weight. \\
+\hline $\bar{x}$ & Averaged value if multiple instances of x present, like $\bar{\zeta}$ means average latency.\\
+\hline $\tilde{x}$ & Normalized value of the parameter x, like $\tilde{\bar\zeta}$ means the average latency normalized, $\tilde{\sum \mu}$ means the sum of $\mu$ normalized.\\
 \hline
-\end{tabular}
-\end{center}
-\end{table}
 
-\begin{equation}\label{eq:a}
-{{\rm{a}}_{r,c,l}} \in \{ 0,1, \ldots ,n\}
-\end{equation}
+
+\end{longtable}
+
 To calculate the Cost (represented by function: $\wp $) for one kind of resource used at one point in time, we multiply its usage with the corresponding unit price (P) as:
 \begin{equation}\label{eq:p}
 \wp (t) = {a_{r,c,l}}{P_{r,c,l}}
@@ -304,20 +256,17 @@ After initial filtering on which options are appropriate for users, we can calcu
 {a_{r,c,l}}{P_{r,c,l}}{T_{r,c,l}}
 \end{equation}
 
-\subsection{Cost Benefit Ratio}
+\subsubsection{Cost Benefit Ratio}
 \label{sec:cost_benefit_ratio}
-In our decision making framework, we consider the following QoS statistics: download latency ($\zeta$), download speed (D) and upload speed ($\mu$). Those characteristics are important for end-users experience and satisfaction. It's possible to have options that have small price difference, or when having high quality service is more important than saving money. So we offer to calculate the cost/benefit ratio for the resources requested as in \eqref{eq:ratio}.
+We offer to calculate the cost/benefit ratio for the resources requested as in \Cref{eq:ratio}, which is the sum of weighted disadvantageous criteria divided by the sum of weighted beneficial criteria.
 \begin{equation}\label{eq:ratio}
-\frac{ w_1 \sum { a_{c,l,r} P_{c,l,r} T_{c,l,r} } + w_2 \bar\zeta_{c,l,r} } {w_3 \bar\mu_{c,l,r} + w_4\bar D_{c,l,r}}
+\frac{  \sum{ ( w_{disadvantageous}\reallywidetilde{criteria_{disadvantageous}} ) }  }
+{  \sum{ ( w_{beneficial} \reallywidetilde{criteria_{beneficial}} ) }  }
 \end{equation}
 
-Since users are likely to select a combination of compute storage and network services, hence the summation over resources when calculating the cost.
+Symbol w represents the weight, which measures users' perceived importance on a parameter. Fig. \ref{fig4} shows the criteria to be optimized. They are categorized into two groups: beneficial criteria to be maximized and disadvantageous criteria to be minimized.
 
-Note that the network QoS of Compute and Storage Service are both collected then separately stored, since user maybe only interested in one of the services. For example, transferring files from (and to) the compute instance relatively ``local"  mounted storage is different from downloading or uploading files from/to dedicated storage only service (like AWS S3 \cite{S3}). In case user select both, we use the average. For instance, in the equation we used $\bar D$ to denote that we take the average of $D_{compute}$(download speed measured from the Compute service) and $D_{storage}$  (download speed measured from the Storage service).
-
-Symbol w represents the weight, which measures users' perceived importance on a parameter, and $w_{1}+ w_{2}=1$ and $w_3+ w_4=1$ means the sum of the weights of benefits and cost each equals to one. Fig. \ref{fig4} shows the criteria to be optimized. They are categorized into two groups: to be maximized or to be minimized.
-
-\begin{figure}[!ht]
+\begin{figure}[ht]
  \centering
  \includegraphics[width=\textwidth,keepaspectratio]{Figures/AHP/figure4a.pdf}
   \includegraphics[width=\textwidth,keepaspectratio]{Figures/AHP/figure4b.pdf}
@@ -325,15 +274,20 @@ Symbol w represents the weight, which measures users' perceived importance on a 
 \label{fig4}
 \end{figure}
 
-As we named this ratio ``Cost Benefit Ratio'', we put cost on the numerator and benefit in the denominator. As a result we will be looking for smaller ratio as better option. Reversing numerator and denominator can still work, just means bigger ratios indicating better option.
+$\widetilde{criteria}$ means the normalized criteria values, thus $\reallywidetilde{criteria_{beneficial}}$ means the normalized value of beneficial criteria.
+For beneficial criteria, normalization is carried out by dividing each value with the highest value among options. For non beneficial criteria, we need to divide each value with the minimal value in options.
 
-\subsection{Weight computed by Pairwise Comparison}
+As we named this ratio \enquote{Cost Benefit Ratio}, we put cost on the numerator and benefit in the denominator. As a result we will be looking for smaller ratio as better option. Reversing numerator and denominator can still work, just means bigger ratios indicating better option.
+
+In our decision making framework, we consider the following QoS statistics: download latency ($\zeta$), download speed (D) and upload speed ($\mu$). Those characteristics are important for end-users experience and satisfaction. It is possible to have options that have small price difference, or when having high quality service is more important than saving money.
+
+Since users are likely to select a combination of compute storage and network services, hence the summation over resources when calculating the cost.
+
+Note that the network QoS of Compute and Storage Service are both collected then separately stored, since user maybe only interested in one of the services. For example, transferring files from (and to) the compute instance relatively local mounted storage is different from downloading or uploading files from/to dedicated network storage service (like AWS S3 \cite{S3}). In case user select both, we use the average. For instance, in the equation we used $\bar D$ to denote that we take the average of $D_{compute}$(download speed measured from the Compute service) and $D_{storage}$  (download speed measured from the Storage service).
+
+\subsubsection{Weight computed by Pairwise Comparison}
 \label{sec:weight&pairwise_comparison}
-The weight is calculated based on AHP's pair wise comparison method. We choose the commonly used scale    \cite{ghodsypour1998decision}   \cite{haas2005illustrated} shown in Table \ref{table:scale}. In case user chooses to treat all options equally, equation \eqref{eq:ratio} becomes \eqref{eq:ratio_eq_weight}.
-
-\begin{equation}\label{eq:ratio_eq_weight}
-\frac{ 0.5\sum {{a_{r,c,l}}{P_{r,c,l}}{T_{r,c,l}}} + 0.5{\zeta_{c,l,r} }}{{ 0.5{{\bar \mu }_{c,l,r}} + 0.5{{\bar D}_{c,l,r}}}}
-\end{equation}
+The weight is calculated based on AHP's pair wise comparison method. We choose the commonly used scale    \cite{ghodsypour1998decision}   \cite{haas2005illustrated} shown in Table \ref{table:scale}. In case user chooses to treat all options equally, weights all become 1.
 
 \begin{table}[!ht]
 \begin{center}\caption{ABSOLUTE VALUE AND CORRESPONDING DESCRIPTIVE SCALE REPRESENTING RELATIVE IMPORTANCE} \label{table:scale}
@@ -358,7 +312,7 @@ The meaning of symbols is explained in Table \ref{table:weight_explanation_symbo
 
 \begin{table*}[!ht]
 \begin{center}
-\caption{Matrix Illustrating How To Turn Pair-wise Preference Into Global Weight.}
+\caption{Illustrating How To Turn Pair-wise Preference Into Global Weight.}
 \label{table:weight}
 \begin{tabular}{ccccccc}
 & $V_{speed_{upload}}$ & $V_{speed_{download}}$ & $V_{ram}$ & $V_{compute_{disk}}$ & Row Sum & Weight \\
@@ -366,7 +320,7 @@ $V_{speed_{upload}}$ & 1 & ${x_{1}}$ & ${x_{2}}$ & ${x_{3}}$ & ${y_{1}}$ & ${y_1
 $V_{speed_{download}}$ & $1/{x_1}$ & 1  & ${x_{4}}$ & ${x_{5}}$ & ${y_{2}}$ & ${y_2}/\tau$  \\
 $V_{ram}$ & $1/{x_2}$ & $1/{x_4}$ & 1 & ${x_{6}}$ & ${y_{3}}$ & ${y_3}/\tau$ \\
 $V_{compute_{disk}}$ & $1/{x_3}$ & $1/{x_5}$ & $1/{x_{6}}$ & 1 & ${y_{4}}$ & ${y_4}/\tau$ \\
-& & & & Column Sum & $\tau$ & 1\\
+& & & & Column Sum & $\tau$ & \\
 \end{tabular}
 \end{center}
 \end{table*}
@@ -378,7 +332,7 @@ $V_{compute_{disk}}$ & $1/{x_3}$ & $1/{x_5}$ & $1/{x_{6}}$ & 1 & ${y_{4}}$ & ${y
 \textbf{Symbol }&  \textbf{Meaning } \\
 %\textbf{benchmark }& \textbf{mode} &
 %\textbf{ mode}  & \textbf{ mode}\\
-\hline $\tau $ & $\sum\limits_{n = 1}^{n = 4} {{y_n}} $ \\
+\hline $\tau $ & The maximum value of y: $ max(y_{1},y_{2},y_{3},y_{4}) $ \\
 \hline V & Value given by User to rate the importance. \\
 \hline $V_{compute_{disk}}$ & How important is the size of disk space on VM. \\
 \hline $V_{cost}$ & Importance value for cost. \\
@@ -395,15 +349,7 @@ $V_{compute_{disk}}$ & $1/{x_3}$ & $1/{x_5}$ & $1/{x_{6}}$ & 1 & ${y_{4}}$ & ${y
 \end{center}
 \end{table}
 
-\begin{equation}\label{eq:eigenvector}
-\left[ \begin{array}{l}
-{y_1}/\tau \\
-{y_2}/\tau \\
-{y_3}/\tau \\
-{y_4}/\tau \\
-\end{array} \right]
-\end{equation}
-The fully fledged AHP method consists of repeated matrix squaring to compute the eigenvector, as calculated in \eqref{eq:eigenvector}, every tiny improvement on precision of the eigenvector gained is at the cost of expensive computation, this is supposed to be repeated until no big enough difference (i.e. to four decimal places)  can be observed. In our case, we noticed that the improvement is so small that this rule can be relaxed to omit iterations on matrix squaring.
+AHP method consists of repeated matrix squaring to compute the eigenvector, as calculated in \Cref{table:weight}, every tiny improvement on precision of the eigenvector gained is at the cost of expensive computation, this is supposed to be repeated until no big enough difference can be observed. In our case, we noticed that the improvement is so small after the first squaring, we actually do not need that much of precision, so we relaxed the rule to only do one matrix squaring.
 
 For example, user may have preference like shown in Table \ref{table:weight_example}. It will produce the preference matrix $M_1$, shown in \eqref{matrix:m1}.
 \begin{equation}\label{matrix:m1}
@@ -438,30 +384,15 @@ Table \ref{table:example_eigenvector} shows the steps breakdown to compute the e
 \begin{center}
 \caption{Example Eigenvector Calculation.}
 \label{table:example_eigenvector}
-\begin{tabular}{cccccccccc}
-          &   &        &   &        &   &     &            & Row Sum \\
-        1 & + & 0.3333 & + & 0.2    & + & 0.2 & =          & 1.7333  \\
-        3 & + & 1      & + & 3      & + & 5   & =          & 13      \\
-        5 & + & 0.3333 & + & 1      & + & 3   & =          & 9.3333  \\
-        5 & + & 0.2    & + & 0.3333 & + & 1   & =          & 6.5333  \\
-          &   &        &   &        &   &     & Column Sum & 30.5999 \\        
+\begin{tabular}{ccccccccccccc}
+  &   &        &   &        &   &     &    & Row Sum &           & & Eigenvector\\
+1 & + & 0.3333 & + & 0.2    & + & 0.2 & =  & 1.7333  & 1.7333/13 &=& 0.1333 \\
+3 & + & 1      & + & 3      & + & 5   & =  & 13      & 13/13     &=& 1\\
+5 & + & 0.3333 & + & 1      & + & 3   & =  & 9.3333  & 9.3333/13 &=& 0.7179\\
+5 & + & 0.2    & + & 0.3333 & + & 1   & =  & 6.5333  & 6.5333/13 &=& 0.5026\\
 \end{tabular}
 \end{center}
 \end{table}
-
-The result eigenvector would be \eqref{eq:eigenvector1}.
-\begin{equation}
-\label{eq:eigenvector1}
-v_1=
-\left[ 
-\begin{array}{c} 
-0.0566 \\ 
-0.4248 \\
-0.3050 \\
-0.2135
-\end{array} 
-\right] 
-\end{equation}
 
 If we square the matrix \eqref{matrix:m1} we get \eqref{eq:m1square}.
 \begin{equation}
@@ -477,29 +408,61 @@ If we square the matrix \eqref{matrix:m1} we get \eqref{eq:m1square}.
 \end{array}
 \end{equation}
 
+\begin{table}[ht]
+\begin{center}
+\caption{Eigenvector Calculation: Matrix Squaring}
+\label{table:eigenvecto_mamtrix_squaring}
+\begin{tabular}{c|cccc}
+\toprule
+Parameter                & Without Squaring & $M^{2}$      & $M^{2^{2}}$  & $M^{2^{3}}$\\
+\midrule
+$V_{speed_{upload}}$     & 0.1333307692     & 0.1143835616 & 0.144178027  & 0.1407611299\\
+$V_{speed_{download}}$   & 1                & 1            & 1            & 1 \\
+$V_{ram}$                & 0.7179461538     & 0.5342465753 & 0.547842341  & 0.5449403125\\
+$V_{compute_{disk}}$     & 0.5025615385     & 0.2659817352 & 0.3099713172 & 0.303706707\\
+\hline
+Change                   &                  & -0.018947208 & 0.029794465  & -0.003416897\\
+                         &                  & 0            & 0            & 0 \\
+                         &                  & -0.183699579 & 0.013595766  & -0.002902029\\
+                         &                  & -0.236579803 & 0.043989582  & -0.006264610\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
 The eigenvector calculated from \eqref{eq:m1square} is \eqref{eq:eigenvector2}.
 \begin{equation}
 \label{eq:eigenvector2}
 \left[ 
 \begin{array}{c} 
-0.0597 \\ 
-0.5223 \\
-0.279 \\
-0.1389
+0.1144 \\ 
+1 \\
+0.5342 \\
+0.2660
 \end{array} 
 \right] 
 \end{equation}
 
-The change of value in the new eigenvector is vary small, hence why we decide to omit this step and just use the original weight values ($v_1$). And we assume the preference for cost and latency are 0.8 and 0.2, so we can calculate the overall rank as shown in \eqref{eq:ratio_example}.
+If we keep do this matrix squaring, the results are shown in table \Cref{table:eigenvecto_mamtrix_squaring}.
+The change of value in the new eigenvector is vary small after the first squaring, so we decide to just do squaring once. If we only need the accuracy to 1 decimal place, we will use the values from the first squaring rounded to $[0.1, 1, 0.5, 0.3]$.
+And if we pretend we have also calculated preference for cost and latency to be 0.8 and 0.2 as an example, the overall rank can be calculated as shown in \Cref{eq:ratio_example}.
 \begin{equation}\label{eq:ratio_example}
-\frac{0.8 \sum { a_{c,l,r} P_{c,l,r} T_{c,l,r} } + 0.2 \bar\zeta_{c,l,r} }{0.0566 \bar\mu_{c,l,r} + 0.4248\bar D_{c,l,r} + 0.3050 \sum M_{c,l,r} + 0.2135 \sum S_{c,l,r}}
+\frac{
+    0.8 \reallywidetilde {\sum { ( a_{c,l,r} P_{c,l,r} T_{c,l,r} ) } }
+    + 0.2 \widetilde{ \overline{ \zeta_{c,l,r} } }
+}{
+    0.1 \widetilde{ \overline{\mu_{c,l,r}} }
+    + \widetilde{ \overline{D_{c,l,r}} }
+    + 0.5 \reallywidetilde{ \sum{M_{c,l,r}} }
+    + 0.3 \reallywidetilde{ \sum{S_{c,l,r}} }
+}
 \end{equation}
 Where $M$ represents memory size and $S$ is storage size.
 
-\section{Algorithm}
-It's more likely that users choose to use a single provider to eliminate costly cross-provider data transfer, but others may have the need to use multiple providers to achieve greater coverage and disaster resilience.
+\subsection{Algorithm}
+It is more likely that users choose to use a single provider to eliminate costly cross-provider data transfer, but others may have the need to use multiple providers to achieve greater coverage and disaster resilience.
 
-We have abstract our approach in Algorithm \ref{algo:orderedSolutions}. Most of the symbols can be found in Table \ref{table:algo_symbols} and \ref{table:relational_algebra_set}, some symbols are defined earlier in Table \ref{table:formula_symbols} and \ref{table:weight_explanation_symbols}. We have separated the relational algebra and set operations into Table \ref{table:relational_algebra_set}, please pay attention to operation G as it has multiple inputs represented by superscript and subscripts.
+We have abstract our approach in Algorithm \ref{algo:orderedSolutions}. Most of the symbols can be found in Table \ref{table:algo_symbols} and \ref{table:relational_algebra_set}, some symbols are defined earlier in \Cref{table:formula_symbols} and \ref{table:weight_explanation_symbols}. We have separated the relational algebra and set operations into Table \ref{table:relational_algebra_set}, please pay attention to operation G as it has multiple inputs represented by superscript and subscripts.
 
 \begin{table}[!ht]
 \begin{center}\caption{Symbols Used In Algorithm.} \label{table:algo_symbols}
@@ -552,7 +515,7 @@ G &
 \hline $\sigma $ &  Selection, see wiki page \cite{ref36}.\\
 \hline $\bowtie$ & Natural join: depends on the condition can be either $\theta$-join or equijoin. For example, $\bowtie(Provider,Location)$ means equijoin where the condition is join only under the same provider and location\\
 \hline  $ \cup$  & Set union operation. \\
-\hline $\mapsto $ & Ordered pair, here we use it to denote a new record being formed.\\
+\hline $\mapsto $ & Ordered pair, here we use it to denote a new record being formed. The reason we used it is because $storageCostByQuota$ maps storage options to a set of costs, i.e. for the same kind of storage option it maps to multiple storage tires, with different unit prices; thus $storageCostByQuota: \Phi _{storage} \to \mathcal{P}(\mathbb{R})$ where $\mathcal{P}(\mathbb{R})$ means the power set of real numbers, for example for a value x, we can have $storageCostByQuota(x)=\{1,2\}$, and the total cost for x is 1+2=3.\\
 \hline
 \end{tabular}
 \end{center}
@@ -567,50 +530,101 @@ ${\varphi _{compute}}: = {\Phi _{compute}}{{\rm \bowtie}_{provider,location,serv
 ${\Phi _{storage}}: = {\sigma _{provider \in \rho  \wedge location \in \ell  \wedge quot{a_{low}} < {\upsilon _{storage}}}}\left( {{\Re _{storage}}} \right)$
 
 //Calculating storage price for each tier.
-storageCostByQuota: = empty list
-foreach$\;{\zeta_s} \in {\Phi _{storage}}\;$do
-    if$\;quot{a_{\min }}({\zeta_s}) < {U_{storage}}$
-        foreach$\;{\zeta_s} \in {\Phi _{storage}}\;$do
-            $storageCostByQuota: = storageCostByQuota \cup \left\{ {{\zeta_s} \mapsto quot{a_{\max }}({\zeta_s})} \right\}* unitPrice({\zeta_s})$
-        else
-            $\begin{array}{l}
-                storageCostByQuota: = storageCostByQuota \cup \left\{ {{\zeta_s} \mapsto \left( {{U_{storage}} - quot{a_{\min }}({\zeta_s})} \right)} \right\}*unitPrice({\zeta_s})
-            \end{array}$
+storageCostByQuota:= empty
+foreach ${x_s} \in {\Phi _{storage}}$ do
+    if ${U_{storage}} > quota_{max}({x_s})$ then
+        $storageCostByQuota \cup
+        \left\{ x_s \mapsto ( quota_{max}(x_s) - quota_{min}(x_s) )\cdot unitPrice({x_s}) \right\}$
+    else
+        //Usage is less or equal to the storage tire max quota
+        if ${U_{storage}} > quota_{min}({x_s})$ then
+            $storageCostByQuota \cup
+            \left\{ x_s \mapsto ( U_{storage} - quota_{min}(x_s) ) \cdot unitPrice(x_s) \right\}$
         end
-    end
+    end 
 end
 
 //Combining storage cost in different tiers to get total.
-$\begin{array}{l}
-storageCost: = \;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;G\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;(storageCostByQuota)\\
-\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;service\_name\& provider\;\;\;\;\;\;\;sum(storage\_\cos t)
-\end{array}$
-${\varphi _{storage}}: = storageCost{\bowtie_{provider,location,serviceName}}AvgQoS$
-${\Phi _{network}}: = {\sigma _{provider \in \rho  \wedge location \in \ell  \wedge quot{a_{low}} < {\upsilon _{storage}}}}({\Re _{network}})$
+$storageCost: = \tensor[_{service\_name\;\&\;provider}]{G}{_{sum(storage\_cost)}} (storageCostByQuota)$
+${\varphi _{storage}}: = storageCost{\bowtie_{provider, location, serviceName}}AvgQoS$
+${\Phi _{network}}: = {\sigma _{provider \in \rho\;\wedge\;location \in \ell\;\wedge\;quot{a_{low}} < {\upsilon _{storage}}}}({\Re _{network}})$
 
-//Match appropriate Compute Storage and Network options.
-$\varphi : = {\varphi _{compute}}{\bowtie_{provider,location,locatio{n_{client}}}}{\varphi _{storage}}{\bowtie_{provider,location}}{\Phi _{network}}$
+//Match appropriate Compute, Storage and Network options.
+$\varphi : = {\varphi _{compute}}{\bowtie_{provider,\;location,\;location_{client}}}{\varphi _{storage}}{\bowtie_{provider,\;location}}{\Phi _{network}}$
 
-$totalCost: = empty\;list$
-foreach$\;\zeta \in \varphi \;$do
-    $totalCost \cup \left\{ {\zeta \mapsto \sum {{U_r}{P_r}} } \right\}$
+totalCost: = empty
+foreach $x \in \varphi$ do
+    $totalCost(x) = \sum {( U_r P_r )}$
 end
 
-$ranked: = empty\;list$
-foreach$\;\zeta \in totalCost\;$do
-    $ranked \cup \left\{ {\zeta \mapsto \frac{{\bar \mu {W_{upload}} + \bar D{W_{download}}}}{{\bar \zeta{W_{latency}} + \sum {{W_r}{P_r}} }}} \right\}$
+// Find unit values for normalization
+minCost:= min(totalCost(x)); $\forall x ; x \in \varphi$
+$minAvgLatency:=min(\bar \zeta)$
+$maxAvgUplinkSpeed:=max(\bar \mu)$
+$maxAvgDownlinkSpeed:=max(\bar D)$
+$maxToTalMemory:=max(\sum M)$
+$maxToTalStorage:=max(\sum S)$
+
+rank: = empty
+foreach $x \in \varphi$ do
+    $rank(x) =
+    \frac{
+        W_{cost} \frac{totalCost(x)}{minCost}
+        + W_{latency} \frac{\bar \zeta_r}{minAvgLatency} 
+    }{
+        W_{upload} \frac{\bar \mu_r}{maxAvgUplinkSpeed}
+        + W_{download} \frac{\bar \mu_r}{maxAvgDownlinkSpeed}
+        + W_{memory} \frac{\sum M_r}{maxToTalMemory}
+        + W_{storage} \frac{\sum S_r}{maxToTalStorag}
+    }
+    $
 end
 
-return sortOnRankDescending(ranked)
+return sortOnRankDescending(rank)
 \end{algorithm}
 
 Algorithm \ref{algo:orderedSolutions} only depicts one common use case, other scenario exists but can be solved with a simplified version of the algorithm or with small modification/addition. We will explains these situation in the following paragraphs.
 
-As shown in Algorithm \ref{algo:orderedSolutions}, a user can provide us the following inputs $( \ell , M_{\min } , price_{\max} , \rho , U , W )$. $\ell$ is the set of locations that a user wants to consider, by default we consider all locations. $M_{\min}$ is the minimal memory requirements for the VMs, 0 denotes no memory requirements. $price_{\max}$ is the maximium budget user willing to spend, 0 indicating they are only interested in free services, -1 is used to represent infinity which means there is no budget constrains. $\rho$ is the set of Cloud service providers that a user wants to consider, by default we consider all providers. $U$ represents the the estimated usages of all the resources: $( U_{compute} , U_{storage} , U_{data_{in}} , U_{data_{out}} )$. $U_{compute}$ is the number of instances, $U_{storage}$ is the number of GB of storage will be used. $U_{data_{out}}$ is the amount of outward data transfer in GB from cloud provider to end devices/users. Similarly, $U_{data_{in}}$ represents the amount of inward data transfer. All the previously mentioned usage estimations are all monthly based, but other length can be used such as daily or hourly, as long as all resource are calculated based on the same standard, there should be no effect on the final comparison and ordering. $W$ represents a user's preference, details are explained in Section \ref{sec:cost_benefit_ratio} and \ref{sec:weight&pairwise_comparison}.
+As shown in Algorithm \ref{algo:orderedSolutions}, a user can provide us the following inputs $( \ell , M_{\min } , price_{\max} , \rho , U , W )$. $\ell$ is the set of locations that a user wants to consider, by default we consider all locations. $M_{\min}$ is the minimal memory requirements for the VMs, 0 denotes no memory requirements. $price_{\max}$ is the maximium budget user willing to spend, 0 indicating they are only interested in free services, -1 is used to represent infinity which means there is no budget constrains. $\rho$ is the set of Cloud service providers that a user wants to consider, by default we consider all providers. $U$ represents the the estimated usages of all the resources: $( U_{compute} , U_{storage} , U_{data_{in}} , U_{data_{out}} )$. $U_{compute}$ is the number of instances, $U_{storage}$ is the number of GB of storage will be used. $U_{data_{out}}$ is the amount of outward data transfer in GB from Cloud provider to end devices/users. Similarly, $U_{data_{in}}$ represents the amount of inward data transfer. All the previously mentioned usage estimations are all monthly based, but other length can be used such as daily or hourly, as long as all resource are calculated based on the same standard, there should be no effect on the final comparison and ordering. $W$ represents a user's preference, details are explained in Section \ref{sec:cost_benefit_ratio} and \ref{sec:weight&pairwise_comparison}.
 
 Once options satisfy user requirements have been identified, we calculating price according to different model. There are various pricing models    \cite{weinman2011axiomatic} exist, for example, free, flat-rate, two-part tariffs (like the AWS reserved instance), block-declining (S3 storage), bidding (AWS spot instance). They can mostly be incorporated into our model except the bidding type. One provider often have multiple offers within the same type of services, for example, different kind of instances for the compute service, different storage options, we combine them to get a combinatorial number of choices, we do that for all providers, then calculate the summed cost and rank for each combined option. Not all users need all 3 types of resources, if they specify 0 for a type of resource, it will not be considered. But network service is always needed.
 
-\section{Experiment}
+\subsection{QoS Profiler}
+\label{sec:QoSProfilerDesign}
+We implement a QoS Profiler service that helps in collecting network QoS values from different points on the Internet (modeling big data source location) to the Cloud data centers.
+We collected the statistics using the \enquote{speedtest} service provided by CloudHarmony.
+
+Klein et al. \cite{klein2012towards} proposed a highly theoretical model based on Euclidean distance for estimating latency, which we believe their theoretical perfect distance assumption can not be practically accurate. However, we can use this model to estimate latency when QoS data is not available for a new client location.
+
+The QoS profiling system consists of multiple agents at geographically dispersed locations to collect and process data, shown in Fig \ref{fig:QoSMonitoringServiceNetworkTopology}.
+If we look at individual slave node, we can see every node profiles the QoS statistics to various Clouds from each location. Bashed scripts are written to export data from each node. Master node pulls data from its children nodes, access keys are required for this operation. Then the CSV formatted data is imported to the master database, where appropriated merge operation is performed. For more implementation details please refer to Chapter \ref{cha:system}.
+
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[width=\textwidth,keepaspectratio]{Figures/QoS/figure2.png}
+ \caption{QoS Monitoring Service Network Topology. We have used 2 Clouds namely: Nectar Research Cloud and Amazon Web Service. Since Nectar Cloud is free for researchers, we kept the instances running all the time, hence the decision to put master node in Nectar. Because there is a limit of quota in Nectar and Amazon have greater geographical coverage in terms of data-center locations. We use additional Spot instance from Amazon as slave data crawlers. A QoS Monitoring Node profiles Download Speed, Latency and Upload Speed at each datacenter in various Clouds from different locations.}
+\label{fig:QoSMonitoringServiceNetworkTopology}
+\end{figure}
+
+Initially, the QoS data was collected on slave node every 2 hours by running the ``speedtest'' service of CloudHarmony. A single run takes more than an hour to finish hence we are collecting it once every two hours. Later by analyzing the data, we conclude that such high frequency is not necessary, because the average QoS from a particular location to a particular data center most of the time fluctuating in a small range. That means the average would be pretty stable. We can use historical data as a pretty reliable indication. Note that difference between data-centers and various locations are still huge as expected, see Fig. \ref{fig:DownloadSpeedFromAmazonToMelbourne}. In the future we may allow a combination of real time and off-line values to be used if necessary.
+
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[width=\textwidth,keepaspectratio]{Figures/QoS/figure5.pdf}
+ \caption{Download speed from Amazon data centers to Melbourne}
+\label{fig:DownloadSpeedFromAmazonToMelbourne}
+\end{figure}
+
+\Cref{fig:DownloadSpeedFromAmazonToMelbourne} shows that geographically close data center has (as high as 25 times) better network performance, hence this validates the fact that location is one of the important criteria which should be considered during selection process. Our measurements also indicate that distance is not the only factor that affects the network performance, as shown in Fig. \ref{fig:DownloadSpeedAgainstDistance}, data centers are ordered from closest to furthest, and from left to right, Tokyo and Brazil clearly perform poorly than expected. Hence, we consider the need for active probing and profiling of network QoS from user's endpoint connection to the Cloud data centers. By doing so, we get a clear picture of data centre's network QoS from the users' device that may be deployed across topologically distributed network locations. Note that we have left out Sydney on purpose. Fig \ref{fig:DownloadSpeedFromAmazonToMelbourne} shows the exponential increase in speed between Sydney and Melbourne compare to overseas locations, while Fig \ref{fig:DownloadSpeedAgainstDistance} shows the linear relationship between downloading speed and distance among overseas locations. We are aware that while it is generally true that the geographical distance between any pair of servers (or users) on the Internet affects the route trip time (RTT), the bandwidth between them is not necessarily determined by the distance, many other aspects can affect the user end QoS, like the last-mile home-connecting technology, local Internet traffic condition. Our measurements are only providing suggestive base for further optimisation, user's actual experience will vary.
+
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[width=\textwidth,keepaspectratio]{Figures/QoS/figure6.pdf}
+ \caption{Download Speed Against Distance.}
+\label{fig:DownloadSpeedAgainstDistance}
+\end{figure}
+
+\section{Experiments}
 \subsection{Setup}
 We run our system and proposed algorithmic technique across a range of hardware systems to understand the implication of hardware resource configuration (see Table \ref{table:experiment_env}) on the performance of the approach.
 
@@ -636,8 +650,8 @@ We run our system and proposed algorithmic technique across a range of hardware 
 
 To summarize, Environment 1 is the local machine used during the development of the program, which is capable of running the database and other system modules.
 
-Environment 2 is the server from The National eResearch Collaboration Tools and Resources (NeCTAR) cloud \cite{NeCTAR} where the our system can be deployed as a service which is easily accessible over the Internet. It is a virtualized environment, so the CPU speed labeled may not accurately reflect the actual allocation.
-NeCTAR's infrastructures are located at at eight different organisations (node sites) around Australia. It operates as one cloud system under the Openstack framework. This makes it having different UI and API compare to AWS. Being a collaborative research cloud, it's only open to affiliated members (i.e. Australian researchers, students from participating university). Although the access is free, there is a limitation of 2 instance per member and a cap on the total resource usage. 
+Environment 2 is the server from The National eResearch Collaboration Tools and Resources (NeCTAR) Cloud \cite{NeCTAR} where the our system can be deployed as a service which is easily accessible over the Internet. It is a virtualized environment, so the CPU speed labeled may not accurately reflect the actual allocation.
+NeCTAR's infrastructures are located at at eight different organisations (node sites) around Australia. It operates as one Cloud system under the Openstack framework. This makes it having different UI and API compare to AWS. Being a collaborative research Cloud, it is only open to affiliated members (i.e. Australian researchers, students from participating university). Although the access is free, there is a limitation of 2 instance per member and a cap on the total resource usage. 
 
 Environment 3 is the spot instance type (from Amazon) we used to collect QoS statistics from additional locations, but to cut down the cost; we kept the usage minimal.
 
@@ -678,21 +692,21 @@ Table \ref{table:input_param} shows the primary configurable parameters of our a
 \end{table}
 
 \subsubsection{Results}
-Figure \ref{fig7} shows the top $5\%$ of the result we get from the inputs in Table \ref{table:input_param}. It is in ascending order of ratio (cost over benefit) as indicated by the dotted (blue) line, because lower cost over higher benefit gives us a smaller ratio which representing a better choice.  If we look at ranking by considering only the cost, as illustrated by the solid (red) line, the GoGrid offers dominate over Windows offerings. If to order results in ascending price order (means network QoS constraints are not considered), shown in Fig. \ref{fig8}, Azure disappears from the top $10\%$ of choices. Similarly, we can see that although the price change is small in solutions, their overall rankings are greatly different (dotted blue line). What this means to users is that while we can save money by ignoring network QoS but then they should be ready for degraded network performance Note that although we tried out best in using real world data, sometimes cloud providers vary their prices as frequent as weekly. However, in future work we intend to implement a price crawler service that will automatically parse the provider's web pages and update our system's database.
+Figure \ref{fig7} shows the top $5\%$ of the result we get from the inputs in Table \ref{table:input_param}. It is in ascending order of ratio (cost over benefit) as indicated by the dotted (blue) line, because lower cost over higher benefit gives us a smaller ratio which representing a better choice.  If we look at ranking by considering only the cost, as illustrated by the solid (red) line, the GoGrid offers dominate over Windows offerings. If to order results in ascending price order (means network QoS constraints are not considered), shown in Fig. \ref{fig8}, Azure disappears from the top $10\%$ of choices. Similarly, we can see that although the price change is small in solutions, their overall rankings are greatly different (dotted blue line). What this means to users is that while we can save money by ignoring network QoS but then they should be ready for degraded network performance Note that although we tried out best in using real world data, sometimes Cloud providers vary their prices as frequent as weekly. However, in future work we intend to implement a price crawler service that will automatically parse the provider's web pages and update our system's database.
 
-\begin{figure*}[!htp]
- \centering
- \includegraphics[width=\textwidth,keepaspectratio]{Figures/AHP/figure7.pdf}
- \caption{Results in ascending order by (cost / benefit) ratio}
-\label{fig7}
-\end{figure*}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[angle=-90, scale=0.6]{Figures/AHP/figure7.pdf}
+    \caption{Results in ascending order by (cost / benefit) ratio}
+    \label{fig7}
+\end{figure}
 
-\begin{figure*}[!htp]
+\begin{figure}[ht]
  \centering
- \includegraphics[width=\textwidth,keepaspectratio]{Figures/AHP/figure8.pdf}
+ \includegraphics[angle=-90, scale=0.7]{Figures/AHP/figure8.pdf}
  \caption{Results in ascending order by cost}
 \label{fig8}
-\end{figure*}
+\end{figure}
 
 \subsubsection{Performance}
 The average run time for our current solution is about 11 seconds, with cache turned on in MySQL, we get up to $9\%$ improvement on the same query. As the constraints become stricter the solution space reduces, as a result processing time decreases (to as low as 4.97 seconds), see Table \ref{table:avg_runtime}.

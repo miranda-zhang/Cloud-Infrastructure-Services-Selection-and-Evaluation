@@ -1,6 +1,6 @@
 \chapter{Cloud Service Ontology}
 \label{cha:cocoon}
-IaaS providers include Amazon Web Services (AWS), Microsoft Azure, Google, Alibaba and others. They give users the option to deploy their application over a pool of virtually infinite services with practically no capital investment and with modest operating costs proportional to the actual use. Elasticity, cost benefits and abundance of resources motivate many organizations to migrate their enterprise applications (e.g. Content management system, Customer relationship management system and Enterprise resource planning system) to the Cloud. Although Cloud offers the opportunity to focus on revenue growth and innovation, decision makers (e.g., CIOs, scientists, developers, engineers, etc.) are faced with the complexity of choosing among private, public, and hybrid Cloud options and selecting the right service delivery and deployment model, see Section \ref{subsec:service_discovery}.
+IaaS providers include Amazon Web Services (AWS), Microsoft Azure, Google, Alibaba and others. They give users the option to deploy their application over a pool of virtually infinite services with practically no capital investment and with modest operating costs proportional to the actual use. Elasticity, cost benefits and abundance of resources motivate many organizations to migrate their enterprise applications (e.g. Content management system, Customer relationship management system and Enterprise resource planning system) to the Cloud. Although Cloud offers the opportunity to focus on revenue growth and innovation, decision makers (e.g., CIOs, scientists, developers, engineers, etc.) are faced with the complexity of choosing among private, public, and hybrid Cloud options and selecting the right service delivery and deployment model, see Section \ref{sec:research_problem}.
 
 To address this IaaS service discovery problem
 we present an OWL-based ontology, the Cloud Computing Ontology (CoCoOn)
@@ -47,7 +47,7 @@ including Amazon, Microsoft Azure, GoGrid, etc.
 
 
 \section{Common Approaches}
-In relation to research problem described in Section \ref{subsec:service_discovery}, there are 3 common approaches for web services identification/publication: 
+In relation to research problem described in Section \ref{sec:research_problem}, there are 3 common approaches for web services identification/publication: 
 \begin{enumerate}
     \item Manually maintain directories by categorizing manually-submitted or collected information about Cloud services and providers, an example of such kind is Universal Description, Discovery and Integration (UDDI), which has failed to gain wide adoption.
     \item Use web crawling, and automatically create listings.
@@ -192,7 +192,7 @@ The major model changes are summarized below:
   \item Additional annotations, including version number, modification dates, metadata like author,
   web page etc.
   \item Removed classes and properties which are not core, and possibly covered by some other ontologies, e.g. Input, Output, Interface, User.
-  \item New class and properties focusing on IaaS and price specifications. Like \cocoon{OSPriceSpecification} and various other extensions to \gr{UnitPriceSpecification}; subclasses for specific Cloud features i.e. \cocoon{LoadBalancing}; classes for describing properties like \cocoon{TrafficDirection}, which specifies network data flow direction.
+  \item New class and properties focusing on IaaS and price specifications. Like \cocoon{CloudOSPriceSpecification} and various other extensions to \gr{UnitPriceSpecification}; subclasses for specific Cloud features i.e. \cocoon{LoadBalancing}; classes for describing properties like \cocoon{TrafficDirection}, which specifies network data flow direction.
 \end{enumerate}
 A detailed change log can also be find on the online documentation 
 \href{https://w3id.org/cocoon/v1.0.1#changes}{"Changes from last version" section}.
@@ -216,7 +216,7 @@ RDF & Resource Description Framework Concepts Vocabulary. & rdf & \url{http://ww
 & RDF Schema vocabulary. & rdfs & \url{http://www.w3.org/2000/01/rdf-schema\#} \\
 \hline
 XML Schema Definition & Data types for elements and attributes. & xsd & \url{http://www.w3.org/2001/XMLSchema\#} \\ \hline
-DCMI Metadata Terms & Defines general metadata attributes & dcterms & \url{http://purl.org/dc/terms/}\\ \hline
+DCMI Metadata Terms & Defines general metadata attributes. & dcterms & \url{http://purl.org/dc/terms/}\\ \hline
 VANN & Vocabulary for annotating descriptions of vocabularies with examples and usage notes. & vann & \url{http://purl.org/vocab/vann/} \\ \hline
 Friend of a Friend & People and relationship. & foaf & \url{http://xmlns.com/foaf/0.1/} \\ \hline
 Creative Commons & License terms. & cc & \url{http://creativecommons.org/ns\#}  \\ \hline
@@ -500,7 +500,7 @@ Followed this we have given an example of snapshot service with only some of the
                                     gr:hasCurrency           "USD" ;
                                     gr:hasCurrencyValue      "0.003e0"^^xsd:float ;
                                     gr:hasUnitOfMeasurement  cocoon:VcpuPerHour ;
-                                    cocoon:inRegion         <https://w3id.org/cocoon/data/v1.0.1/Region/Azure/us-east-2>
+                                    cocoon:inRegion         <Region/Azure/us-east-2>
                                   ] .
 <2019-02-12/NetworkStorage/Gcloud/CP-COMPUTEENGINE-STORAGE-PD-SSD-REGIONAL>
         a                         cocoon:NetworkStorage ;
@@ -721,7 +721,7 @@ Because for each case there are very different requirements, it is clearer
 to model them with different subclass rather than define all properties in the base class
 \cocoon{CloudServicePriceSpecification}.
 
-\subsubsubsection{Price of VM Images}
+\subsubsubsection{Price of Virtual Machine Images}
 \cocoon{CloudOSPriceSpecification} is defined with the following properties:
 \begin{itemize}
   \item[] \cocoon{chargedPerCore} \magenta{exactly} 1 \xsd{boolean}
@@ -731,7 +731,7 @@ to model them with different subclass rather than define all properties in the b
 
 For example, the Google Cloud has the following charges for images:
 \begin{displayquote}
-The price for a premium image is different depending on which machine type you use. For example, a standard SUSE image costs \textdollar 0.02 per hour to run on an f1-micro instance, but the same image costs \textdollar 0.11 per hour to run on an n1-standard-8 instance. The prices for premium images are the same worldwide and *do not differ based on zones or regions*.
+The price for a premium image is different depending on which machine type you use. For example, a standard SUSE image costs \textdollar 0.02 per hour to run on an f1-micro instance, but the same image costs \textdollar 0.11 per hour to run on an n1-standard-8 instance. The prices for premium images are the same worldwide and \textbf{do not differ based on zones or regions}.
 All prices for premium images are in addition to charges for using a machine type. For example, the total price to use an n1-standard-8 instance with a SUSE image would be the sum of the machine type cost and the image cost:
 n1-standard-8 cost + SUSE image cost = \textdollar0.3800 + \textdollar0.11 = \textdollar0.49 per hour
 \end{displayquote}

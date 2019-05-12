@@ -27,7 +27,7 @@
 %oneside, % Two side (alternating margins) for binding by default, uncomment to switch to one side
 english, % ngerman for German
 singlespacing, % Single line spacing, alternatives: onehalfspacing or doublespacing
-%draft, % Uncomment to enable draft mode (no pictures, no links, overfull hboxes indicated)
+% draft, % Uncomment to enable draft mode (no pictures, no links, overfull hboxes indicated)
 %nolistspacing, % If the document is onehalfspacing or doublespacing, uncomment this to set spacing in lists to single
 %liststotoc, % Uncomment to add the list of figures/tables/etc to the table of contents
 toctotoc, % Uncomment to add the main table of contents to the table of contents
@@ -51,10 +51,11 @@ headsepline, % Uncomment to get a line under the header
 % [autostyle=true] language-dependent quotes in the bibliography
 \usepackage[autostyle=true]{csquotes} % in-line and display quotations
 
-\usepackage{pdfpages}% include PDF documents
-\usepackage{enumitem}% http://ctan.org/pkg/enumitem
+% \usepackage{pdfpages}% include PDF documents
+\usepackage{enumitem}% https://www.latex-tutorial.com/tutorials/lists/
 \usepackage{amsmath,tensor} % matrix, vector
 \usepackage{todonotes}
+
 %----------------------------------------------------------------------------------------
 %https://tex.stackexchange.com/questions/28333/continuous-v-per-chapter-section-numbering-of-figures-tables-and-other-docume
 %----------------------------------------------------------------------------------------
@@ -79,7 +80,6 @@ headsepline, % Uncomment to get a line under the header
 \renewcommand\tabularxcolumn[1]{m{#1}}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 \addparagraphcolumntypes{L}
-
 %----------------------------------------------------------------------------------------
 %	Custom Commands for more section levels
 % https://tex.stackexchange.com/questions/60209/how-to-add-an-extra-level-of-sections-with-headings-below-subsubsection
@@ -114,11 +114,23 @@ headsepline, % Uncomment to get a line under the header
 \makeatother
 
 %----------------------------------------------------------------------------------------
-% Formula shorthand
+% Formula
 %----------------------------------------------------------------------------------------
+% shorthands
 \newcommand{\costlpv}{\ensuremath{Co_{(l,p,v)}}}
 \newcommand{\characteristicsset}{\ensuremath{\wp}}
 \newcommand{\characteristicslpv}{\ensuremath{Ch_{(l,p,v)}}}
+
+% https://tex.stackexchange.com/a/101138/34958
+\usepackage{scalerel}
+\usepackage{stackengine,wasysym}
+
+\newcommand\reallywidetilde[1]{\ThisStyle{%
+  \setbox0=\hbox{$\SavedStyle#1$}%
+  \stackengine{-.1\LMpt}{$\SavedStyle#1$}{%
+    \stretchto{\scaleto{\SavedStyle\mkern.2mu\AC}{.5150\wd0}}{.6\ht0}%
+  }{O}{c}{F}{T}{S}%
+}}
 
 %----------------------------------------------------------------------------------------
 % Color highlighting
@@ -150,7 +162,7 @@ headsepline, % Uncomment to get a line under the header
         numberstyle=\tiny,
         basicstyle=\scriptsize, 
         keywordstyle=\color{black}\bfseries\em,
-        keywords={,input, output, return, datatype, function, in, if, else, foreach, do, while, begin, end, } %add the keywords you want, or load a language as Rubens explains in his comment above.
+        keywords={,input, output, return, datatype, function, in, if, else, then, foreach, do, while, begin, end, } %add the keywords you want, or load a language as Rubens explains in his comment above.
         numbers=left,
         xleftmargin=.04\textwidth,
         morecomment=[l][\color{ForestGreen}]{//},
@@ -204,8 +216,6 @@ sensitive=true
 %----------------------------------------------------------------------------------------
 %   Typing prefixed URIs and making them clickable
 %----------------------------------------------------------------------------------------
-\usepackage{ifthen}
-
 \newcommand{\gr}[1]{\href{http://purl.org/goodrelations/v1\##1}{\textsf{gr\string:#1}}}
 \newcommand{\rdfs}[1]{\href{https://www.infowebml.ws/rdf-owl/#1.htm}{\textsf{rdfs\string:#1}}}
 \newcommand{\owl}[1]{\href{http://www.w3.org/2002/07/owl\##1}{\textsf{owl\string:#1}}}
@@ -217,10 +227,10 @@ sensitive=true
 \newcommand{\ssnsystem}[1]{\href{http://www.w3.org/ns/ssn/systems/#1}{\textsf{ssn-system\string:#1}}}
 \newcommand{\cocoon}[1]{\href{https://w3id.org/cocoon/v1.0.1\##1}{\textsf{cocoon\string:#1}}}
 \newcommand{\unit}[1]{\href{https://github.com/miranda-zhang/cloud-computing-schema/blob/master/example/unit/QUDT.md\##1}{\textsf{unit\string:#1}}}
+
 %----------------------------------------------------------------------------------------
 %	MARGIN SETTINGS
 %----------------------------------------------------------------------------------------
-
 \geometry{
 	paper=a4paper, % Change to letterpaper for US letter
 	inner=2.5cm, % Inner margin
@@ -230,6 +240,20 @@ sensitive=true
 	bottom=1.5cm, % Bottom margin
 	%showframe, % Uncomment to show how the type block is set on the page
 }
+
+% ----------------------------------------------------------------------------------------
+% clever reference
+% https://tex.stackexchange.com/questions/47495/cleveref-listings
+% https://tex.stackexchange.com/questions/239970/is-cleveref-safe-to-use
+% ----------------------------------------------------------------------------------------
+\AtEndPreamble{\usepackage{cleveref}} 
+\AtEndPreamble{\crefname{lstlisting}{listing}{listings}}
+
+% ----------------------------------------------------------------------------------------
+% https://tex.stackexchange.com/questions/50070/landscape-figure-in-latex
+% https://tex.stackexchange.com/questions/146878/sideways-figure-always-rotates-clockwise
+% ----------------------------------------------------------------------------------------
+\usepackage[figuresleft]{rotating}
 
 %----------------------------------------------------------------------------------------
 %	THESIS INFORMATION
@@ -435,7 +459,9 @@ Some may suggest don't make your hobby as your job, you may lose it.
 % Include the appendices of the thesis as separate files from the Appendices folder
 % Uncomment the lines as you write the Appendices
 
-%\include{Appendices/AppendixA}
+\include{Appendices/AppendixA}
+%\include{Appendices/AppendixC}
+
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
